@@ -15,6 +15,7 @@
     **BDSMLOCK (Devious Devices):**
     {% set _fighting = false %}
     {% set _lockWomenOnly = false %}
+    {% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
     {% if exists("player") and existsIn(player, "UUID") %}
     {% set _lockTargetUUID = player.UUID %}
     {% set _lockTargetName = player_name %}
@@ -31,7 +32,9 @@
     {% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
     {% if not _fighting %}
     Occupancy and cascade rules in this section override the global "prefer an action over None" default — a worn slot, a lock that already fired this exchange, or a post-lock gloat is `None`, not another BDSMLOCK.
-    {% if _lockWomenOnly %}
+    {% if _speakerHandsBusy %}
+    - {{ npc.name }}'s own hands are bound (armbinder/mittens/cuffs/yoke/straitjacket/etc). {{ npc.name }} cannot work a buckle, a lock, a strap, or a remote on anyone — not on {{ _lockTargetName }}, not on {{ npc.name }} either. Never pick `BDSMLOCK`, `BDSMUNLOCK`, `change_outfit_target`, `VibeHornify`, `VibeHornifyLong`, `VibeJab`, `VibeTease`, `VibePunish`, or `TurnOffVibrators` this line. Talk, direct someone else to do it, or wait — the eligible list below has already removed these for this reason.
+    {% else if _lockWomenOnly %}
     {% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
     {% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
     {% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
@@ -51,8 +54,7 @@
     {% set _predator = is_hostile_to_actor(npc.UUID, _lockTargetUUID) or is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
     {% set _stillDressed = (worn_has_keyword(_lockTargetUUID, "ArmorCuirass") or worn_has_keyword(_lockTargetUUID, "ClothingBody")) and not _suit %}
     {% set _targetHandsBusy = _hands or _armcuffs %}
-    {% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
-    {% set _speakerCanStrip = (not is_in_combat(npc.UUID)) and (not _speakerHandsBusy) %}
+    {% set _speakerCanStrip = not is_in_combat(npc.UUID) %}
     {% set _shady = is_in_faction(npc.UUID, "ThievesGuildFaction") or is_in_faction(npc.UUID, "DarkBrotherhoodFaction") %}
     {% set _guard = is_guard_or_authority(npc.UUID) %}
     {% set _pNeedDrink = get_global_value("_SHCurrentThirstLevel") >= 70 %}
@@ -150,7 +152,7 @@
     ## Eligible Actions
     {% for action in eligible_actions %}
     {% set _skipFight = false %}
-    {% if _fighting %}
+    {% if _fighting or _speakerHandsBusy %}
     {% if action.name == "BDSMLOCK" or action.name == "BDSMUNLOCK" or action.name == "change_outfit_target" or action.name == "VibeHornify" or action.name == "VibeHornifyLong" or action.name == "VibeJab" or action.name == "VibeTease" or action.name == "VibePunish" or action.name == "TurnOffVibrators" %}
     {% set _skipFight = true %}
     {% endif %}

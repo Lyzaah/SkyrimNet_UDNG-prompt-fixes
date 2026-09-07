@@ -3,6 +3,21 @@
 All notable changes to this package are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [3.3.9] - 2026-09-07
+
+### Fixed
+- A speaker whose own hands are bound (armbinder, elbow tie, butterfly binder,
+  yoke, straitjacket, arm cuffs, or bondage mittens) could still be instructed
+  to `BDSMLOCK` a device onto someone else, or narrate the behind-the-back
+  "Arms first" restraint — `_speakerHandsBusy` existed but only ever gated
+  the dressing/stripping branch, never the actual lock menu. Both
+  `native_action_selector.prompt` and `0760_bdsm_lock_action.prompt` now
+  short-circuit the whole BDSMLOCK/BDSMUNLOCK/Vibe*/change_outfit_target
+  section when the speaker's own hands are busy, and the native selector's
+  eligible-actions list drops those actions from the menu entirely in that
+  case (not just the instruction text) so the model can't reach for them
+  even off the generic "prefer an action over None" bias.
+
 ## [3.3.8] - 2026-09-07
 
 ### Fixed

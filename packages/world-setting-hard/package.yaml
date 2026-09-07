@@ -1,6 +1,6 @@
 name: "World Setting (HARD)"
 slug: world-setting-hard
-version: 3.3.8
+version: 3.3.9
 mo2_mod_name: "World Setting - Hard"
 
 # Shared components/ folders to pull in wholesale (see ../../components/)

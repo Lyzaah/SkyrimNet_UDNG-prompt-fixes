@@ -24,8 +24,12 @@
 {% endif %}
 {% endif %}
 {% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
+{% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
 {% if not _fighting %}
-{% if _lockWomenOnly %}
+{% if _speakerHandsBusy %}
+## Devices — {{ npc.name }}'s own hands are bound
+{{ npc.name }}'s hands are restrained right now (armbinder, mittens, arm cuffs, or similar). {{ npc.name }} cannot buckle, unlock, strip, or press anything on {{ _lockTargetName }} or on anyone else while that is on. Do NOT output BDSMLOCK, BDSMUNLOCK, or change_outfit_target this line, and do not narrate doing so — talk, tease, or direct someone else to do it instead.
+{% else if _lockWomenOnly %}
 {% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
 {% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
 {% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
@@ -44,8 +48,7 @@
 {% set _gloves = worn_has_keyword(_lockTargetUUID, "zad_DeviousGloves") or worn_has_keyword(_lockTargetUUID, "zad_DeviousBondageMittens") %}
 {% set _stillDressed = (worn_has_keyword(_lockTargetUUID, "ArmorCuirass") or worn_has_keyword(_lockTargetUUID, "ClothingBody")) and not _suit %}
 {% set _targetHandsBusy = _hands or _armcuffs %}
-{% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
-{% set _speakerCanStrip = (not is_in_combat(npc.UUID)) and (not _speakerHandsBusy) %}
+{% set _speakerCanStrip = not is_in_combat(npc.UUID) %}
 {% set _hostile = is_hostile_to_actor(npc.UUID, _lockTargetUUID) %}
 {% set _bandit = is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
 {% set _guard = is_guard_or_authority(npc.UUID) %}

@@ -15,6 +15,7 @@
     **BDSMLOCK (Devious Devices):**
     {% set _fighting = false %}
     {% set _lockWomenOnly = false %}
+    {% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
     {% if exists("player") and existsIn(player, "UUID") %}
     {% set _lockTargetUUID = player.UUID %}
     {% set _lockTargetName = player_name %}
@@ -31,11 +32,9 @@
     {% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
     {% if not _fighting %}
     Occupancy and cascade rules in this section override the global "prefer an action over None" default — a worn slot, a lock that already fired this exchange, or a post-lock gloat is `None`, not another BDSMLOCK.
-    {% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
     {% if _speakerHandsBusy %}
-    - {{ npc.name }}'s hands are bound. Never pick `GetDressed`, `EquipArmor`, `change_outfit`, `ApplyOutfitPreset`, or `change_outfit_target`. Bound hands do not dress anyone, including themselves.
-    {% endif %}
-    {% if _lockWomenOnly %}
+    - {{ npc.name }}'s own hands are bound (armbinder/mittens/cuffs/yoke/straitjacket/etc). {{ npc.name }} cannot work a buckle, a lock, a strap, or a remote on anyone — not on {{ _lockTargetName }}, not on {{ npc.name }} either. Never pick `BDSMLOCK`, `BDSMUNLOCK`, `change_outfit_target`, `GetDressed`, `EquipArmor`, `ApplyOutfitPreset`, `VibeHornify`, `VibeHornifyLong`, `VibeJab`, `VibeTease`, `VibePunish`, or `TurnOffVibrators` this line. Talk, direct someone else to do it, or wait — the eligible list below has already removed these for this reason.
+    {% else if _lockWomenOnly %}
     {% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
     {% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
     {% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
@@ -150,7 +149,7 @@
     ## Eligible Actions
     {% for action in eligible_actions %}
     {% set _skipFight = false %}
-    {% if _fighting %}
+    {% if _fighting or _speakerHandsBusy %}
     {% if action.name == "BDSMLOCK" or action.name == "BDSMUNLOCK" or action.name == "change_outfit_target" or action.name == "VibeHornify" or action.name == "VibeHornifyLong" or action.name == "VibeJab" or action.name == "VibeTease" or action.name == "VibePunish" or action.name == "TurnOffVibrators" %}
     {% set _skipFight = true %}
     {% endif %}

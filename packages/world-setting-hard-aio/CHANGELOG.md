@@ -3,6 +3,17 @@
 All notable changes to this package are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [3.2.7] - 2026-09-07
+
+### Fixed
+- Picked up `world-setting-hard`'s 3.3.9 fix: a speaker whose own hands are
+  bound could still be told to `BDSMLOCK` a device onto someone else, or
+  narrate the "Arms first" behind-the-back restraint. `_speakerHandsBusy` now
+  hard-gates the whole BDSMLOCK/BDSMUNLOCK/Vibe*/change_outfit_target section
+  in both `native_action_selector.prompt` and `0760_bdsm_lock_action.prompt`,
+  and the native selector drops those actions from the eligible-actions list
+  entirely in that case.
+
 ## [3.2.6] - 2026-09-07
 
 ### Fixed
