@@ -1,0 +1,174 @@
+{% if embed_actions_in_dialogue and eligible_actions and length(eligible_actions) > 0 %}
+{% if render_mode != "thoughts" %}
+{% if exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{#
+  MEDIUM BDSMLOCK. Same engine as Hard (occupancy, 20-group map, asked empty).
+  WHEN: asked, predator spoils after fight, real arrest, shady one-liberty,
+  already-displayed liberty. A greeting is not a lock. No Hard punishment ladder.
+  Extra PARAMS keys (target, targetName, device) FAIL. intent only.
+  Impulse rolls live in 0720 (always rendered). This file fires the ACTION
+  if this line is that liberty — do not re-roll here (vars don't cross files).
+  Women only: retarget onto responseTarget only if she is female. A male addressee
+  does NOT fall back onto the player (that was the 3.2.4 mislock).
+#}
+{% set _lockTargetUUID = player.UUID %}
+{% set _lockTargetName = player_name %}
+{% set _lockWomenOnly = decnpc(player.UUID).isFemale %}
+{% if exists("responseTarget") and existsIn(responseTarget, "UUID") and responseTarget.UUID != player.UUID %}
+{% if decnpc(responseTarget.UUID).isFemale %}
+{% set _lockTargetUUID = responseTarget.UUID %}
+{% set _lockTargetName = responseTarget.name %}
+{% set _lockWomenOnly = true %}
+{% else %}
+{% set _lockWomenOnly = false %}
+{% endif %}
+{% endif %}
+{% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
+{% if not _fighting %}
+{% if _lockWomenOnly %}
+{% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
+{% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
+{% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
+{% set _nip = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsNipple") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsVaginal") %}
+{% set _belt = worn_has_keyword(_lockTargetUUID, "zad_DeviousBelt") %}
+{% set _harness = worn_has_keyword(_lockTargetUUID, "zad_DeviousHarness") %}
+{% set _hands = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinder") or worn_has_keyword(_lockTargetUUID, "zad_DeviousYoke") or worn_has_keyword(_lockTargetUUID, "zad_DeviousHeavyBondage") or worn_has_keyword(_lockTargetUUID, "zad_DeviousElbowTie") or worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(_lockTargetUUID, "zad_DeviousButterfly") or worn_has_keyword(_lockTargetUUID, "zad_DeviousStraitJacket") %}
+{% set _hood = worn_has_keyword(_lockTargetUUID, "zad_DeviousHood") %}
+{% set _blind = worn_has_keyword(_lockTargetUUID, "zad_DeviousBlindfold") %}
+{% set _boots = worn_has_keyword(_lockTargetUUID, "zad_DeviousBoots") %}
+{% set _bra = worn_has_keyword(_lockTargetUUID, "zad_DeviousBra") %}
+{% set _corset = worn_has_keyword(_lockTargetUUID, "zad_DeviousCorset") %}
+{% set _armcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousCuffsFront") %}
+{% set _legcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousLegCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousAnkleShackles") %}
+{% set _suit = worn_has_keyword(_lockTargetUUID, "zad_DeviousSuit") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPetSuit") %}
+{% set _gloves = worn_has_keyword(_lockTargetUUID, "zad_DeviousGloves") or worn_has_keyword(_lockTargetUUID, "zad_DeviousBondageMittens") %}
+{% set _stillDressed = (worn_has_keyword(_lockTargetUUID, "ArmorCuirass") or worn_has_keyword(_lockTargetUUID, "ClothingBody")) and not _suit %}
+{% set _targetHandsBusy = _hands or _armcuffs %}
+{% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
+{% set _speakerCanStrip = (not is_in_combat(npc.UUID)) and (not _speakerHandsBusy) %}
+{% set _hostile = is_hostile_to_actor(npc.UUID, _lockTargetUUID) %}
+{% set _bandit = is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
+{% set _guard = is_guard_or_authority(npc.UUID) %}
+{% set _friend = get_relationship_rank(npc.UUID, _lockTargetUUID) >= 1 %}
+{% set _predator = _hostile or _bandit %}
+{% set _thief = is_in_faction(npc.UUID, "ThievesGuildFaction") %}
+{% set _db = is_in_faction(npc.UUID, "DarkBrotherhoodFaction") %}
+{% set _shady = _thief or _db %}
+{% set _wornSomething = _gag or _collar or _plug or _nip or _belt or _harness or _hands or _hood or _blind or _boots or _bra or _corset or _armcuffs or _legcuffs or _suit or _gloves %}
+
+{% if _stillDressed and not _targetHandsBusy and (_predator or _shady or _guard) %}
+## Arms first — {{ _lockTargetName }}
+{{ _lockTargetName }} still has clothes and free hands. This line is a behind-the-back restraint, not a gag, not a bra, not a hood.
+Currently wears:{% if _collar %} collar.{% endif %}{% if _gag %} gag.{% endif %}{% if _hood %} hood.{% endif %}{% if _blind %} blindfold.{% endif %}{% if _hands %} armbinder/yoke/elbow/butterfly/straitjacket.{% endif %}{% if _armcuffs %} arm cuffs.{% endif %}{% if _bra %} chastity bra.{% endif %}{% if _belt %} chastity belt.{% endif %}{% if not _collar and not _gag and not _hood and not _blind and not _hands and not _armcuffs and not _bra and not _belt %} nothing lockable yet.{% endif %}
+ACTION: BDSMLOCK PARAMS: {"intent": "<armbinder|butterfly|elbow binder> {{ _lockTargetName }}"}
+`intent` is the ONLY key. Pick one empty behind-the-back word: armbinder, butterfly, or elbow binder. Not arm cuffs. Not gag. Not bra. Clothes after the arms click.
+{% else if _stillDressed and _targetHandsBusy and _speakerCanStrip and (_predator or _shady or _guard) %}
+## Clothes — {{ _lockTargetName }}
+Hands are already bound. She still wears clothes. This line is cutting them off — **not** another device.
+Gag, bra, hood, belt, and the rest wait until she is out of the armor.
+ACTION: change_outfit_target PARAMS: {"stripped": "{{ _lockTargetName }}", "style": "forcefully", "how": "undresses"}
+`Undress` / `change_outfit` only strip YOU. Bound hands do not dress anyone.
+{% else %}
+## Locking devices on {{ _lockTargetName }} — BDSMLOCK
+This always targets {{ _lockTargetName }} — whoever this line is actually addressed to (the player, or another NPC being talked to right now).
+Talking about a gag, collar, or belt does nothing. The lock only happens if you output this category after your spoken line.
+
+## Occupied vs empty slots
+Devious Devices is one item per slot. She has one neck, one mouth, one pair of hands. A second collar/gag/binder does nothing except spam. Yanking a leash, saying the collar is locked, walking a collared girl, or talking about her to someone else is NOT a new lock.
+
+Check in this order:
+1. Currently wears (never restack these):{% if _collar %} collar.{% endif %}{% if _gag %} gag.{% endif %}{% if _hood %} hood.{% endif %}{% if _blind %} blindfold.{% endif %}{% if _hands %} armbinder/yoke/elbow/butterfly/straitjacket.{% endif %}{% if _armcuffs %} arm cuffs.{% endif %}{% if _legcuffs %} leg cuffs.{% endif %}{% if _gloves %} gloves.{% endif %}{% if _plug %} plug.{% endif %}{% if _nip %} piercings.{% endif %}{% if _belt %} chastity belt.{% endif %}{% if _bra %} chastity bra.{% endif %}{% if _harness %} harness.{% endif %}{% if _corset %} corset.{% endif %}{% if _suit %} catsuit.{% endif %}{% if _boots %} locked boots.{% endif %}{% if not _collar and not _gag and not _hood and not _blind and not _hands and not _armcuffs and not _legcuffs and not _gloves and not _plug and not _nip and not _belt and not _bra and not _harness and not _corset and not _suit and not _boots %} nothing lockable yet.{% endif %}
+2. EMPTY (legal to lock this line):{% if not _gag %} gag.{% endif %}{% if not _collar %} collar.{% endif %}{% if not _hood %} hood.{% endif %}{% if not _blind %} blindfold.{% endif %}{% if not _boots %} heels.{% endif %}{% if not _plug %} plug.{% endif %}{% if not _nip %} piercings.{% endif %}{% if not _bra %} chastity bra.{% endif %}{% if not _belt %} chastity belt.{% endif %}{% if not _harness %} harness.{% endif %}{% if not _suit %} catsuit.{% endif %}{% if not _hands %} armbinder / elbow binder / butterfly / yoke / straitjacket.{% endif %}{% if not _armcuffs %} arm cuffs.{% endif %}{% if not _legcuffs %} leg cuffs.{% endif %}{% if not _gloves %} gloves.{% endif %}{% if not _corset %} corset.{% endif %}{% if _gag and _collar and _hood and _blind and _boots and _plug and _nip and _bra and _belt and _harness and _suit and _hands and _armcuffs and _legcuffs and _gloves and _corset %} none — every slot is occupied.{% endif %}
+3. Intent map below — only empty slots appear. If a slot word is missing from the map, that slot is occupied; do not name it.
+
+This list is physics. A memory, diary, or bio that says she already wears a chastity belt is STALE if "chastity belt" is not in currently wears.
+
+If she **asked** for an EMPTY slot above and you would actually do it this line, you MUST BDSMLOCK that slot. Talking about buckling it without the ACTION line leaves her free.
+
+If you lock, `intent` is the ONLY key. Name the slot word from this map:
+{% if not _gag %}
+gag / mouth / silence / ball gag / ring gag / panel gag → GAGS
+{% endif %}{% if not _collar %}
+collar / leash / posture collar → COLLARS
+{% endif %}{% if not _hood %}
+hood / mask → HOODS
+{% endif %}{% if not _blind %}
+blindfold / blind → BLINDFOLDS
+{% endif %}{% if not _boots %}
+heels / ballet / bondage boots / pony boots → BOOTS
+{% endif %}{% if not _plug %}
+plug / holes / shocking plug → PLUGS
+{% endif %}{% if not _nip %}
+piercings / nipple rings / clit piercing → PIERCINGS
+{% endif %}{% if not _bra %}
+chastity bra / bra / lock tits / chest cage → CHASTITY_BRAS
+{% endif %}{% if not _belt %}
+chastity belt / belt / lock cunt (no "bra") → CHASTITY_BELTS
+{% endif %}{% if not _harness %}
+harness → HARNESSES
+{% endif %}{% if not _suit %}
+catsuit / ebonite suit / rubber suit / latex suit / pet suit / lock her in rubber → SUITS
+{% endif %}{% if not _hands %}
+armbinder / binder / hands behind → ARMBINDERS
+elbow binder / elbows together → ELBOW_BINDERS
+butterfly binder / butterfly → BUTTERFLY_BINDERS
+yoke → YOKES
+straitjacket / strait jacket → STRAITJACKETS
+{% endif %}{% if not _armcuffs %}
+arm cuffs / wrist cuffs / front cuffs → ARM_CUFFS
+{% endif %}{% if not _legcuffs %}
+leg cuffs / thigh cuffs / ankle shackles / shackles → LEG_CUFFS
+{% endif %}{% if not _gloves %}
+gloves / mittens → GLOVES
+{% endif %}{% if not _corset %}
+corset / lace / waist → CORSETS
+{% endif %}{% if _gag and _collar and _hood and _blind and _boots and _plug and _nip and _bra and _belt and _harness and _suit and _hands and _armcuffs and _legcuffs and _gloves and _corset %}
+Every slot is already occupied — there is nothing left to name. Do not BDSMLOCK this line.
+{% endif %}
+
+There is no ANKLE_SHACKLES group. Ankles/shackles are LEG_CUFFS. Remote/vibe/buzz is not a lock — that is VibeHornify / VibeJab / VibeTease / VibePunish.
+
+Format (copy this shape, swap the slot word):
+ACTION: BDSMLOCK PARAMS: {"intent": "chastity belt {{ _lockTargetName }}"}
+ACTION: BDSMLOCK PARAMS: {"intent": "catsuit {{ _lockTargetName }}"}
+
+She named an empty slot → that word in intent. "Chastity" without "bra" is the belt. Catsuit is not hood. Bra is not belt, not piercings, not the remote. Heels is not gag. Hood/mask is not gag.
+
+## When to fire it (medium)
+If she **asked** for an EMPTY slot and you agree, lock it this line — that beats everything below.
+{% if _predator %}
+You are a bandit/hostile/captor. You MAY lock **one** empty slot when you have her and this is spoils, silencing, or a claim — and you say so out loud. Not every sentence. Not mid-chat-hello. One lock per player line, then gloat.
+{% else if _shady %}
+You're shady. You MAY lock **one** empty slot this line as a liberty — spare collar, gag for a mouthy girl, cuffs. Invent why. Not a quest briefing. Not every sentence. If this line is that liberty, BDSMLOCK it.
+{% else if _guard %}
+You may BDSMLOCK as part of a **real** arrest, jail, or punishment you already committed to — not sarcasm in the street. If she is already wearing lockable gear during a real stop, you may add one empty piece to secure her. If she asked for an empty slot and you agree, lock it.
+{% else if _friend %}
+Friend/follower: if {{ _lockTargetName }} asked and you agree, or this is play you both already started. Do not surprise-lock a friend.
+{% else %}
+Townsfolk, merchants, quest NPCs: do your job (shop, quest, rumor). A greeting is not a lock. If she asked and you agree, lock.
+{% if _wornSomething %}
+She is already displayed. If this line is you taking a small liberty (and you are the sort — mean, drunk, bored, taking advantage, not a kind questgiver mid-briefing), BDSMLOCK **one** empty piece, invent why, then stop.
+{% endif %}
+{% endif %}
+
+**When NOT to fire it:** ordinary greetings that never mention a device, trade, quest briefing, "I'm considering it," occupied slots, a lock you already fired this exchange, dumping a whole outfit in one go.
+
+## The lock is the scene
+If you BDSMLOCK, speak first: several sentences about *this* toy, invented this second, in YOUR voice. Describe it the way a person would (a padded steel chastity bra, a ball gag) — never recite the inventory SKU ("Steel Chastity Bra (Padded)", "Female Chastity Bra (Padded)", "Steel Cuffs (Padded) (Arms)"). Then the ACTION. A silent lock plus "that's better" is wrong. Spoken line must match the slot.
+
+## No cascade
+One BDSMLOCK per player line. If recent events already show you locking a device on her this exchange (`locked a … on {{ _lockTargetName }}`), skip BDSMLOCK and stay with the piece that just clicked — invent that gloat. Heels then hood two seconds later is restack-by-another-name.
+
+- `intent` is the ONLY key. Extra keys (`target`, `targetName`, `device`) make the lock fail.
+- This wins the one action slot. Do not use Outfit, change_outfit, RestrainNPC, or ArousalReaction instead of locking. `change_outfit_target` is only for cutting clothes off a girl whose hands are already locked, never to dress her, never as a substitute for BDSMLOCK.
+- **No phantom gag.** If the occupied list says mouth FREE, there is no gag to thumb. If she asked not to be gagged, skip gag.
+- If your own hands cannot work a buckle, skip BDSMLOCK.
+{% endif %}
+{% else %}
+## Devices — women only
+BDSMLOCK / BDSMUNLOCK only act on women. This line's addressee is a man. Do not output a lock or unlock ACTION. Do not narrate locking a device onto him as if the game will do it.
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}

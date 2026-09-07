@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fomod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/Info.xsd">
+  <Name>Lyza's SkyrimNet_DDUDNG fixes</Name>
+  <Author>Lyza / Grok</Author>
+  <Version>3.3.4</Version>
+  <Website>https://discord.com/channels/1287232260617015336/1544716621610877018</Website>
+  <Description>
+SkyrimNet + Devious Devices prompt overlay. No ESP of its own.
+
+Feedback / support thread: https://discord.com/channels/1287232260617015336/1544716621610877018
+
+Installer picks the world tone:
+- Medium — RP-focused. Shops and quests stay shops and quests unless she asked, or they are predators / shady / arresting.
+- Hard — being made a pet. Locking an adult woman is ordinary manners.
+
+Occupancy, combat omit, women-only, gagged speech, and the remote are the same either way.
+
+Optional second page: Experimental — SLO arousal bands and follower remote play. Needs SLO Aroused / SkyrimNet_Arousal to mean anything; without them the extra page is inert.
+
+Hard requirements, credited: SkyrimNet_UDNG by naitro2010
+(https://github.com/naitro2010/SkyrimNet_UDNG) and DD SkyrimNet AddOn
+V1.1-beta by telord (Discord link above). Neither is bundled here.
+  </Description>
+  <Groups>
+    <element>SkyrimNet</element>
+  </Groups>
+</fomod>

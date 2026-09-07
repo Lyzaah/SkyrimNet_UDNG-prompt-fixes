@@ -1,0 +1,36 @@
+name: ActivateVibratorOnActor
+description: "Press the remote on a vibrating or shocking plug/piercing {{ player.name }} is ALREADY wearing. Does not equip anything — lock the toy first with BDSMLOCK. Use when punishing, teasing, or she is mouthy while plugged or pierced. teaseOnly true = edge her and deny; false = try to make her cum. vibStrength and duration are picked per call — see 0761_vibrator_remote.prompt for what each level should mean."
+questEditorId: zadQuest
+scriptName: zadLibs
+executionFunctionName: VibrateEffectAsync
+parameterMapping:
+  - type: dynamic
+    name: Actor
+    description: "the wearer — use {{ player.name }}'s display name exactly when she is the target"
+  - type: dynamic
+    name: vibStrength
+    description: "DD scale 1-5 ONLY, integer. Not 1-100. Pick the strength that matches the moment — a light tease is not a real punishment."
+    optional: true
+    default: 4
+  - type: dynamic
+    name: duration
+    description: "Seconds this pulse runs before stopping on its own. Short (10-20s) for a jab/warning, longer (45-120s) for a sustained tease or punishment."
+    optional: true
+    default: 60
+  - type: dynamic
+    name: teaseOnly
+    description: "true = edge her, no orgasm. false = try to make her cum."
+    optional: true
+    default: true
+  - type: static
+    name: silent
+    value: false
+    description: Static bool
+  - type: static
+    name: AllowActorInScene
+    value: false
+    description: Static bool
+enabled: false
+defaultPriority: 8
+isShortLived: true
+eventString: "{{ actor.name }} pressed the remote on {{ player.name }}"

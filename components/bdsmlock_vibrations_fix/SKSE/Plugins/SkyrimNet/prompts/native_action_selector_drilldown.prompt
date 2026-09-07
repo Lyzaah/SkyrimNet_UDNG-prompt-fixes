@@ -1,0 +1,270 @@
+[ system ]
+    You select the single most appropriate action for {{ npc.name }} from a specific action category.
+    A broader category was already identified from the dialogue. Now pick the exact action.
+
+    **Guidelines:**
+    - Read the exchange. If the speaker asked {{ npc.name }} to do something and {{ npc.name }} agreed, complied, or showed willingness, select the action that fulfills that request.
+    - If {{ npc.name }}'s dialogue implies, suggests, or leads toward any eligible action — select it.
+    - Agreement can be implicit — positive responses or steps toward fulfilling a request count.
+    - Do NOT choose dramatic or aggressive actions unless clearly signaled in the dialogue or situation. Exception: EQUIP_* Devious Device locks on an adult woman are ordinary here. Do not pick None to be polite.
+    - Consider {{ npc.name }}'s current physical and emotional state when selecting.
+    - For actions with actor parameters, use the actor's display name exactly as shown in Nearby Actors or in the PARAMS choices.
+    - Respond with EXACTLY one line. Never output multiple action lines — only the first is processed by the game engine, the rest are discarded.
+    - The eligible list prints `ACTION: Name — description`. The name is ONLY the token before the dash. Output `ACTION: HOODS` or `ACTION: GAGS` or `ACTION: SUITS`. NEVER copy the words after the dash. `ACTION: SUITS — Pick the suit to lock on a target` is invalid and does nothing.
+
+    **arrest drilldown:**
+    - If this category is `Arrest` and the intent is about the PLAYER: pick `AddBountyToPlayer` if no bounty is implied, else `ArrestPlayer`. Never pick `RestrainNPC`, `ArrestNPC`, or `KidnapNPC` for the player.
+    - `RestrainNPC` target must be some other NPC in Nearby Actors, never the player character.
+
+    **device drilldown:**
+    {% set _fighting = false %}
+    {% if exists("player") and existsIn(player, "UUID") %}
+    {% set _lockTargetUUID = player.UUID %}
+    {% set _lockTargetName = player_name %}
+    {% set _lockWomenOnly = decnpc(player.UUID).isFemale %}
+    {% if exists("responseTarget") and existsIn(responseTarget, "UUID") and responseTarget.UUID != player.UUID %}
+    {% if decnpc(responseTarget.UUID).isFemale %}
+    {% set _lockTargetUUID = responseTarget.UUID %}
+    {% set _lockTargetName = responseTarget.name %}
+    {% set _lockWomenOnly = true %}
+    {% else %}
+    {% set _lockWomenOnly = false %}
+    {% endif %}
+    {% endif %}
+    {% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
+    {% if not _fighting %}
+    {% if _lockWomenOnly %}
+    {% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
+    {% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
+    {% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
+    {% set _nip = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsNipple") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsVaginal") %}
+    {% set _belt = worn_has_keyword(_lockTargetUUID, "zad_DeviousBelt") %}
+    {% set _harness = worn_has_keyword(_lockTargetUUID, "zad_DeviousHarness") %}
+    {% set _hands = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinder") or worn_has_keyword(_lockTargetUUID, "zad_DeviousYoke") or worn_has_keyword(_lockTargetUUID, "zad_DeviousHeavyBondage") or worn_has_keyword(_lockTargetUUID, "zad_DeviousElbowTie") or worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(_lockTargetUUID, "zad_DeviousButterfly") or worn_has_keyword(_lockTargetUUID, "zad_DeviousStraitJacket") %}
+    {% set _hood = worn_has_keyword(_lockTargetUUID, "zad_DeviousHood") %}
+    {% set _blind = worn_has_keyword(_lockTargetUUID, "zad_DeviousBlindfold") %}
+    {% set _boots = worn_has_keyword(_lockTargetUUID, "zad_DeviousBoots") %}
+    {% set _bra = worn_has_keyword(_lockTargetUUID, "zad_DeviousBra") %}
+    {% set _corset = worn_has_keyword(_lockTargetUUID, "zad_DeviousCorset") %}
+    {% set _armcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousCuffsFront") %}
+    {% set _legcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousLegCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousAnkleShackles") %}
+    {% set _suit = worn_has_keyword(_lockTargetUUID, "zad_DeviousSuit") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPetSuit") %}
+    {% set _gloves = worn_has_keyword(_lockTargetUUID, "zad_DeviousGloves") or worn_has_keyword(_lockTargetUUID, "zad_DeviousBondageMittens") %}
+    {% set _emptyGroups = [] %}
+    {% if not _gag %}{% set _emptyGroups = append(_emptyGroups, "GAGS") %}{% endif %}
+    {% if not _collar %}{% set _emptyGroups = append(_emptyGroups, "COLLARS") %}{% endif %}
+    {% if not _hood %}{% set _emptyGroups = append(_emptyGroups, "HOODS") %}{% endif %}
+    {% if not _blind %}{% set _emptyGroups = append(_emptyGroups, "BLINDFOLDS") %}{% endif %}
+    {% if not _boots %}{% set _emptyGroups = append(_emptyGroups, "BOOTS") %}{% endif %}
+    {% if not _plug %}{% set _emptyGroups = append(_emptyGroups, "PLUGS") %}{% endif %}
+    {% if not _nip %}{% set _emptyGroups = append(_emptyGroups, "PIERCINGS") %}{% endif %}
+    {% if not _bra %}{% set _emptyGroups = append(_emptyGroups, "CHASTITY_BRAS") %}{% endif %}
+    {% if not _belt %}{% set _emptyGroups = append(_emptyGroups, "CHASTITY_BELTS") %}{% endif %}
+    {% if not _harness %}{% set _emptyGroups = append(_emptyGroups, "HARNESSES") %}{% endif %}
+    {% if not _suit %}{% set _emptyGroups = append(_emptyGroups, "SUITS") %}{% endif %}
+    {% if not _hands %}{% set _emptyGroups = append(_emptyGroups, "ARMBINDERS") %}{% set _emptyGroups = append(_emptyGroups, "ELBOW_BINDERS") %}{% set _emptyGroups = append(_emptyGroups, "BUTTERFLY_BINDERS") %}{% set _emptyGroups = append(_emptyGroups, "YOKES") %}{% set _emptyGroups = append(_emptyGroups, "STRAITJACKETS") %}{% endif %}
+    {% if not _armcuffs %}{% set _emptyGroups = append(_emptyGroups, "ARM_CUFFS") %}{% endif %}
+    {% if not _legcuffs %}{% set _emptyGroups = append(_emptyGroups, "LEG_CUFFS") %}{% endif %}
+    {% if not _gloves %}{% set _emptyGroups = append(_emptyGroups, "GLOVES") %}{% endif %}
+    {% if not _corset %}{% set _emptyGroups = append(_emptyGroups, "CORSETS") %}{% endif %}
+    - Two steps, in order. Step 1 — category is `BDSMLOCK`: output one SLOT GROUP token from the empty list below, then stop. Do not pick an EQUIP_* at this step. Step 2 — category is already a slot (GAGS, COLLARS, SUITS, …): pick ONE EQUIP_* leaf for that empty slot. `target` = {{ _lockTargetName }} (whoever this line is addressed to).
+    - Empty groups this turn (occupied groups are omitted from this list, not listed as options): {% if length(_emptyGroups) > 0 %}ONLY: {{ join(_emptyGroups, ", ") }}{% else %}nothing — every group is occupied, pick `None`{% endif %}. There is no ANKLE_SHACKLES.
+    - If this category is already a slot group and that group is not in the empty list above, pick `None`. A second collar or second catsuit is invalid.
+    - If this category is `BDSMLOCK`: pick the empty group that matches intent, then stop.
+    - If this category is already a slot: pick ONE EQUIP_* leaf only if that slot is empty. Never pick None if the intent was to lock an empty slot.
+    - UDNG registers a toy for every color and material in the load order. Ignore the catalog.
+    {% set _npcKnowledgeRaw = get_world_knowledge(npc.UUID) %}
+    {% set _npcKnowledgeLower = "" %}
+    {% if isString(_npcKnowledgeRaw) %}{% set _npcKnowledgeLower = lower(_npcKnowledgeRaw) %}{% endif %}
+    {% set _prefMaterial = "" %}
+    {% if contains(_npcKnowledgeLower, "steel") %}{% set _prefMaterial = "Steel" %}
+    {% elif contains(_npcKnowledgeLower, "chain") %}{% set _prefMaterial = "Chain" %}
+    {% elif contains(_npcKnowledgeLower, "ebonite") %}{% set _prefMaterial = "Ebonite" %}
+    {% elif contains(_npcKnowledgeLower, "leather") %}{% set _prefMaterial = "Leather" %}
+    {% endif %}
+    {% set _matRoll = random() %}
+    {% if _matRoll < 25 %}{% set _rndMaterial = "Steel" %}
+    {% elif _matRoll < 50 %}{% set _rndMaterial = "Black Leather" %}
+    {% elif _matRoll < 75 %}{% set _rndMaterial = "Padded" %}
+    {% else %}{% set _rndMaterial = "Iron" %}
+    {% endif %}
+    {% if _prefMaterial != "" %}
+    - {{ npc.name }}'s own background/personality shows a preference for {{ _prefMaterial }} gear — pick a {{ _prefMaterial }} item for this lock if one exists in the Eligible Actions list below. If no {{ _prefMaterial }} option exists for this slot, fall back to {{ _rndMaterial }}.
+    {% else %}
+    - No stated material preference for {{ npc.name }} — pick {{ _rndMaterial }} this time if it exists in the Eligible Actions list below. Vary it call to call; do not default to Black Leather out of habit just because it is a familiar name.
+    {% endif %}
+    - Acceptable generic names: Black Leather, Iron, Padded, Steel, Chain, Ebonite, or the plainest matching item. Do not pick ebonite rainbows, tape, "hidden arms", pony gear, quest-named, or extra-long SKUs unless the intent named that exact toy.
+    - Slot from intent (output `ACTION: GROUP` with no dash, no description — or JSON `{"ACTION":"GROUP"}` if structured). Only empty groups appear; if the intent names a group missing here, pick `None`:
+{% if not _gag %}      gag/mouth/silence/ball gag/ring gag/panel gag → GAGS
+{% endif %}{% if not _collar %}      collar/leash/posture collar → COLLARS
+{% endif %}{% if not _hood %}      hood/mask → HOODS
+{% endif %}{% if not _blind %}      blindfold/blind → BLINDFOLDS
+{% endif %}{% if not _boots %}      heels/ballet/bondage boots/pony boots → BOOTS
+{% endif %}{% if not _plug %}      plug/holes/shocking plug → PLUGS
+{% endif %}{% if not _nip %}      piercings/nipple rings/clit piercing → PIERCINGS (not if intent was bra)
+{% endif %}{% if not _bra %}      chastity bra/bra/lock tits/chest cage → CHASTITY_BRAS
+{% endif %}{% if not _belt %}      belt/cunt/chastity without bra → CHASTITY_BELTS
+{% endif %}{% if not _harness %}      harness → HARNESSES
+{% endif %}{% if not _suit %}      catsuit/ebonite suit/rubber suit/latex suit/pet suit/lock her in rubber → SUITS
+{% endif %}{% if not _hands %}      armbinder/binder/hands behind → ARMBINDERS
+      elbow binder/elbows together → ELBOW_BINDERS
+      butterfly binder/butterfly → BUTTERFLY_BINDERS
+      yoke → YOKES
+      straitjacket/strait jacket → STRAITJACKETS
+{% endif %}{% if not _armcuffs %}      arm cuffs/wrist cuffs/front cuffs → ARM_CUFFS
+{% endif %}{% if not _legcuffs %}      leg cuffs/thigh cuffs/ankle shackles/shackles → LEG_CUFFS
+{% endif %}{% if not _gloves %}      gloves/mittens → GLOVES
+{% endif %}{% if not _corset %}      corset/lace/waist → CORSETS
+{% endif %}{% if _gag and _collar and _hood and _blind and _boots and _plug and _nip and _bra and _belt and _harness and _suit and _hands and _armcuffs and _legcuffs and _gloves and _corset %}      Every group is occupied — pick `None`.
+{% endif %}      Catsuit is never HOODS. Bra is never BELTS or PIERCINGS. Ankles are LEG_CUFFS, never a made-up ANKLE_SHACKLES. Remote/vibe is not a slot.
+
+    - If this category is `BDSMUNLOCK`: pick the exact `EXTCMDUNEQUIP*` action for the device actually named, `target` = {{ _lockTargetName }} (the wearer this line is about, never the speaker removing their own gear). The list below is generated from what is ACTUALLY worn on {{ _lockTargetName }} right now — these are the only valid picks this turn, never invent one that is not listed here even if you recall it from elsewhere.
+    {% set _wornArmbinderOnly = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinder") %}
+    {% set _wornYoke = worn_has_keyword(_lockTargetUUID, "zad_DeviousYoke") %}
+    {% set _wornElbowTie = worn_has_keyword(_lockTargetUUID, "zad_DeviousElbowTie") or worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinderElbow") %}
+    {% set _wornButterfly = worn_has_keyword(_lockTargetUUID, "zad_DeviousButterfly") %}
+    {% set _wornStraitjacket = worn_has_keyword(_lockTargetUUID, "zad_DeviousStraitJacket") %}
+    {% set _wornHeavyBondage = worn_has_keyword(_lockTargetUUID, "zad_DeviousHeavyBondage") %}
+    {% set _wornLegCuffsOnly = worn_has_keyword(_lockTargetUUID, "zad_DeviousLegCuffs") %}
+    {% set _wornAnkleShacklesOnly = worn_has_keyword(_lockTargetUUID, "zad_DeviousAnkleShackles") %}
+    {% set _wornPlugVaginal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") %}
+    {% set _wornPlugAnal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
+    {% set _wornPiercingNipple = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsNipple") %}
+    {% set _wornPiercingVaginal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsVaginal") %}
+    {% set _wornPetSuit = worn_has_keyword(_lockTargetUUID, "zad_DeviousPetSuit") %}
+    {% set _wornSuitOnly = worn_has_keyword(_lockTargetUUID, "zad_DeviousSuit") %}
+    {% set _anyUnlockOption = _gag or _collar or _hood or _blind or _belt or _bra or _wornArmbinderOnly or _wornElbowTie or _wornStraitjacket or _wornYoke or _armcuffs or _wornLegCuffsOnly or _wornAnkleShacklesOnly or _gloves or _harness or _corset or _wornSuitOnly or _wornPetSuit or _wornPiercingNipple or _wornPiercingVaginal or _wornPlugAnal or _wornPlugVaginal %}
+    {#
+      A single real device often carries MULTIPLE hand-restraint keywords at once — confirmed live
+      via get_worn_equipment: a worn butterfly binder actually carries zad_DeviousArmbinder AND
+      zad_DeviousHeavyBondage AND zad_DeviousButterfly simultaneously (broader category tags riding
+      on the same item as its specific type tag). Checking these as independent {% if %} blocks
+      would render multiple contradictory lines for one physical item. Fixed as a priority elif
+      chain below: most specific real device type wins, generic "armbinder" is the last-resort
+      fallback only when none of the more specific tags are present.
+    #}
+    {% if _gag %}  gag → EXTCMDUNEQUIPGAG
+    {% endif %}{% if _collar %}  collar → EXTCMDUNEQUIPCOLLAR
+    {% endif %}{% if _hood %}  hood/mask → EXTCMDUNEQUIPHOOD
+    {% endif %}{% if _blind %}  blindfold → EXTCMDUNEQUIPBLINDFOLD
+    {% endif %}{% if _belt %}  chastity belt/belt → EXTCMDUNEQUIPBELT
+    {% endif %}{% if _bra %}  chastity bra/bra → EXTCMDUNEQUIPBRA
+    {% endif %}{% if _wornButterfly %}  butterfly binder is worn, but no unequip action exists for it in the current catalog — pick `None`, do not invent one.
+    {% elif _wornStraitjacket %}  straitjacket → EXTCMDUNEQUIPSTRAITJACKET
+    {% elif _wornElbowTie %}  elbow tie/elbow binder → EXTCMDUNEQUIPELBOWTIE
+    {% elif _wornYoke %}  yoke → EXTCMDUNEQUIPYOKE
+    {% elif _wornHeavyBondage %}  heavy bondage gear is worn, but no unequip action exists for it in the current catalog — pick `None`, do not invent one.
+    {% elif _wornArmbinderOnly %}  armbinder/binder → EXTCMDUNEQUIPBINDER
+    {% endif %}{% if _armcuffs %}  arm cuffs/wrist cuffs → EXTCMDUNEQUIPARMCUFFS
+    {% endif %}{% if _wornLegCuffsOnly %}  leg cuffs/thigh cuffs → EXTCMDUNEQUIPLEGCUFFS
+    {% endif %}{% if _wornAnkleShacklesOnly %}  ankle shackles → EXTCMDUNEQUIPANKLESHACKLES
+    {% endif %}{% if _gloves %}  gloves/mittens → EXTCMDUNEQUIPGLOVES
+    {% endif %}{% if _harness %}  harness → EXTCMDUNEQUIPHARNESS
+    {% endif %}{% if _corset %}  corset → EXTCMDUNEQUIPCORSET
+    {% endif %}{% if _wornSuitOnly %}  catsuit/suit → EXTCMDUNEQUIPSUIT
+    {% endif %}{% if _wornPetSuit %}  pet suit → EXTCMDUNEQUIPPETSUIT
+    {% endif %}{% if _wornPiercingNipple %}  nipple piercings/nipple rings → EXTCMDUNEQUIPPIERCINGSNIPPLE
+    {% endif %}{% if _wornPiercingVaginal %}  vaginal piercings/clit piercing → EXTCMDUNEQUIPPIERCINGSVAGINAL
+    {% endif %}{% if _wornPlugAnal %}  anal plug → EXTCMDUNEQUIPPLUGANAL
+    {% endif %}{% if _wornPlugVaginal %}  vaginal plug → EXTCMDUNEQUIPPLUGVAGINAL
+    {% endif %}{% if _boots %}  heels/boots are worn, but no unequip action exists for them in the current catalog — pick `None`, do not invent one.
+    {% endif %}{% if not _anyUnlockOption and not _wornButterfly and not _wornHeavyBondage and not _boots %}  Nothing is currently worn that could be removed — pick `None`.
+    {% endif %}
+    Not tracked here (no keyword available to detect them, so they never appear above even if worn): clamps, hobble skirt. If one of those is explicitly named, pick `None` rather than guessing.
+    {% else %}
+    - This line is not addressed to a woman. Device drilldown (`BDSMLOCK` / `EQUIP_*` / `BDSMUNLOCK` / `EXTCMDUNEQUIP*` / Vibe*) never acts on men. Pick `None`. Do not put a man's name in `target`.
+    {% endif %}
+    {% endif %}
+    {% endif %}
+
+    {% if structured_json_actions %}
+    **Response format** (exactly one line, no reasoning):
+    - `{"ACTION": "ActionName"}`
+    - `{"ACTION": "ActionName", "PARAMS": {"param_name1": "value1", ...}}`
+    - `{"ACTION": "None"}`
+    {% else %}
+    **Response format** (exactly one line starting with `ACTION:`, no reasoning):
+    - `ACTION: ActionName`
+    - `ACTION: ActionName PARAMS: {"param_name1": "value1", ...}`
+    - `ACTION: None`
+    {% endif %}
+
+    ## {{ npc.name }}'s Profile
+    {{ render_character_profile("action", npc.UUID) }}
+[ end system ]
+
+[ user ]
+
+    {% if category_name != "" %}
+    ## Intent
+    {% if category_intent != "" %}{{ npc.name }} intends to: {{ category_intent }}
+    {% else %}The previous evaluation selected the **{{ category_name }}** category: "{{ category_description }}"
+    {% endif %}Pick the specific action that best matches.
+    {% endif %}
+
+    ## Most Recent Exchange
+    {% set _player_said = "" %}
+    {% set _player_recent = get_recent_events(5, player.UUID) %}
+    {% for event in _player_recent %}
+    {% if event.type == "dialogue_player_text" or event.type == "dialogue_player_stt" or event.type == "dialogue_player" %}{% set _player_said = format_event(event, "compact") %}{% endif %}
+    {% endfor %}
+    {% if _player_said != "" %}**{{ decnpc(player.UUID).name }}:** {{ _player_said }}
+    {% endif %}
+    **{{ npc.name }}:** {{ dialogue_response }}
+
+    ## Nearby Actors
+    - {{ decnpc(player.UUID).name }} ({{ decnpc(player.UUID).gender }} {{ decnpc(player.UUID).race }}) — THE PLAYER CHARACTER
+    {% for npc_nearby in get_nearby_npc_list(player.UUID) %}
+        - {{ decnpc(npc_nearby.UUID).name }} ({{ decnpc(npc_nearby.UUID).gender }} {{ decnpc(npc_nearby.UUID).race }}, {{ units_to_meters(npc_nearby.distance) }}m away)
+    {% endfor %}
+
+    ## Eligible Actions
+    {% for action in eligible_actions %}
+    {% set _skipOccupied = false %}
+    {% if _fighting %}
+    {% if contains(action.name, "EQUIP_") or contains(action.name, "EXTCMDUNEQUIP") or contains(action.name, "BDSM") or action.name == "GAGS" or action.name == "COLLARS" or action.name == "HOODS" or action.name == "BLINDFOLDS" or action.name == "BOOTS" or action.name == "PLUGS" or action.name == "PIERCINGS" or action.name == "CHASTITY_BRAS" or action.name == "CHASTITY_BELTS" or action.name == "HARNESSES" or action.name == "SUITS" or action.name == "ARMBINDERS" or action.name == "ELBOW_BINDERS" or action.name == "BUTTERFLY_BINDERS" or action.name == "YOKES" or action.name == "STRAITJACKETS" or action.name == "ARM_CUFFS" or action.name == "LEG_CUFFS" or action.name == "GLOVES" or action.name == "CORSETS" %}
+    {% set _skipOccupied = true %}
+    {% endif %}
+    {% endif %}
+    {% if exists("player") and existsIn(player, "UUID") and not _fighting %}
+    {% if _gag and (action.name == "GAGS" or contains(action.name, "EQUIP_GAGS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _collar and (action.name == "COLLARS" or contains(action.name, "EQUIP_COLLARS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _hood and (action.name == "HOODS" or contains(action.name, "EQUIP_HOODS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _blind and (action.name == "BLINDFOLDS" or contains(action.name, "EQUIP_BLINDFOLDS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _boots and (action.name == "BOOTS" or contains(action.name, "EQUIP_BOOTS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _plug and (action.name == "PLUGS" or contains(action.name, "EQUIP_PLUGS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _nip and (action.name == "PIERCINGS" or contains(action.name, "EQUIP_PIERCINGS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _bra and (action.name == "CHASTITY_BRAS" or contains(action.name, "EQUIP_CHASTITY_BRAS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _belt and (action.name == "CHASTITY_BELTS" or contains(action.name, "EQUIP_CHASTITY_BELTS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _harness and (action.name == "HARNESSES" or contains(action.name, "EQUIP_HARNESSES")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _suit and (action.name == "SUITS" or contains(action.name, "EQUIP_SUITS") or contains(action.name, "EQUIP_PETSUIT")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _hands and (action.name == "ARMBINDERS" or action.name == "ELBOW_BINDERS" or action.name == "BUTTERFLY_BINDERS" or action.name == "YOKES" or action.name == "STRAITJACKETS" or contains(action.name, "EQUIP_ARMBINDERS") or contains(action.name, "EQUIP_ELBOW_BINDERS") or contains(action.name, "EQUIP_BUTTERFLY_BINDERS") or contains(action.name, "EQUIP_YOKES") or contains(action.name, "EQUIP_STRAITJACKETS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _armcuffs and (action.name == "ARM_CUFFS" or contains(action.name, "EQUIP_ARM_CUFFS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _legcuffs and (action.name == "LEG_CUFFS" or contains(action.name, "EQUIP_LEG_CUFFS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _gloves and (action.name == "GLOVES" or contains(action.name, "EQUIP_GLOVES")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if _corset and (action.name == "CORSETS" or contains(action.name, "EQUIP_CORSETS")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _gag and contains(action.name, "EXTCMDUNEQUIPGAG") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _collar and contains(action.name, "EXTCMDUNEQUIPCOLLAR") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _hood and contains(action.name, "EXTCMDUNEQUIPHOOD") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _blind and contains(action.name, "EXTCMDUNEQUIPBLINDFOLD") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _belt and contains(action.name, "EXTCMDUNEQUIPBELT") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _bra and contains(action.name, "EXTCMDUNEQUIPBRA") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _hands and (contains(action.name, "EXTCMDUNEQUIPBINDER") or contains(action.name, "EXTCMDUNEQUIPSTRAITJACKET") or contains(action.name, "EXTCMDUNEQUIPELBOWTIE") or contains(action.name, "EXTCMDUNEQUIPYOKE")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _armcuffs and contains(action.name, "EXTCMDUNEQUIPARMCUFFS") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _legcuffs and (contains(action.name, "EXTCMDUNEQUIPLEGCUFFS") or contains(action.name, "EXTCMDUNEQUIPANKLESHACKLES")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _gloves and contains(action.name, "EXTCMDUNEQUIPGLOVES") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _harness and contains(action.name, "EXTCMDUNEQUIPHARNESS") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _corset and contains(action.name, "EXTCMDUNEQUIPCORSET") %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _suit and (contains(action.name, "EXTCMDUNEQUIPSUIT") or contains(action.name, "EXTCMDUNEQUIPPETSUIT")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _nip and (contains(action.name, "EXTCMDUNEQUIPPIERCINGSNIPPLE") or contains(action.name, "EXTCMDUNEQUIPPIERCINGSVAGINAL")) %}{% set _skipOccupied = true %}{% endif %}
+    {% if not _plug and (contains(action.name, "EXTCMDUNEQUIPPLUGANAL") or contains(action.name, "EXTCMDUNEQUIPPLUGVAGINAL")) %}{% set _skipOccupied = true %}{% endif %}
+    {% endif %}
+    {% if not _skipOccupied %}
+        - ACTION: {{ action.name }}{% if action.parameterSchema and length(action.parameterSchema) > 0 %} PARAMS: {{ action.parameterSchema }}{% endif %} — {{ action.description }}
+    {% endif %}
+    {% endfor %}
+    - ACTION: None — No action matches the dialogue.
+
+    Respond now. One line only, no reasoning.
+
+[ end user ]

@@ -1,0 +1,129 @@
+{% if render_mode != "transform" and exists("player") and existsIn(player, "UUID") %}
+{#
+  World Setting — player worn-device physics.
+
+  SOURCE: the vrtedd_* decorators registered globally by mad72's "DD SkyrimNet AddOn" (its Base
+  component — DLL + ESP + Papyrus scripts). REQUIRES that mod's ESP ticked in the load order; if
+  it is not, every vrtedd_* call below returns "" and this block renders nothing (silent, not an
+  error — see the isString guard below).
+
+  WHY THIS FILE EXISTS. An NPC bio, memory, or event history that still calls the player "bound,"
+  "gagged," or "blind" may be hours stale, or already wrong the moment a device comes off — and an
+  LLM keeps imitating its own past turns rather than noticing the change. This is the physics
+  sheet: ground truth about her body right now, retargeted from the addon's own NPC-facing pattern
+  onto the PLAYER (player.UUID in place of npc.UUID — the decorators work on any actor UUID, and
+  are already known to fire correctly on the player in practice).
+
+  THIS IS FUNCTIONALITY, NOT TONE. Every line states mechanism and physical fact. Never fear,
+  shame, arousal, need, mockery or resignation — that belongs in the separate tone prompt
+  (0720_player_devices.prompt), which assumes this file already rendered these facts elsewhere in
+  the prompt tree and reads from them rather than re-deriving its own copy of ground truth.
+
+  ⚠ GUARD RULE. NEVER test a Papyrus decorator's result with `!= ""` alone. An empty Papyrus
+  return arrives here as an empty JSON OBJECT `{}`, and `{} != ""` evaluates TRUE — that exact bug
+  put a constraint block on every actor in the game for a full session on the addon this is ported
+  from. Every vrtedd_* call below is guarded with `isString(x) and x != ""`.
+
+  ⚠ Skips render_mode == "transform" (the player is literally speaking in that mode — nothing to
+  ground her against). Renders in every other mode, thoughts included: her own body is a fact she
+  is aware of even in her own internal monologue.
+
+  ⚠ Action-selection suppression (the addon's own restraint file forbids an ACTION: line for a
+  bound NPC) does NOT port here — the player never has an ACTION: line generated on her behalf;
+  that mechanism is NPC-self-directed only. This file states facts, nothing more.
+
+  ⚠ Eligibility rules must never gate on these decorators (Papyrus cache-miss / warmup-lag risk,
+  same lesson the source addon's own action file documents). Native worn_has_keyword only, for
+  eligibility. This file is prompt text, never an eligibility condition.
+#}
+{% set _pd_worn = vrtedd_worn_devices(player.UUID) %}
+{% set _pd_gag = vrtedd_gag_name(player.UUID) %}
+{% set _pd_blind = vrtedd_blind(player.UUID) %}
+{% set _pd_deaf = vrtedd_deaf(player.UUID) %}
+{% set _pd_all = vrtedd_all_bound(player.UUID) %}
+{% set _pd_arms = vrtedd_arms_bound(player.UUID) %}
+{% set _pd_legs = vrtedd_legs_bound(player.UUID) %}
+{% set _pd_gag_on = (isString(_pd_gag) and _pd_gag != "") or worn_has_keyword(player.UUID, "zad_DeviousGag") or worn_has_keyword(player.UUID, "zbfWornGag") %}
+{% set _pd_blind_on = isString(_pd_blind) and _pd_blind != "" %}
+{% set _pd_deaf_on = isString(_pd_deaf) and _pd_deaf != "" %}
+{% set _pd_all_on = isString(_pd_all) and _pd_all != "" %}
+{% set _pd_arms_on = (isString(_pd_arms) and _pd_arms != "") and not _pd_all_on %}
+{% set _pd_legs_on = (isString(_pd_legs) and _pd_legs != "") and not _pd_all_on %}
+
+## {{ player_name }}'s body RIGHT NOW (physics, not memory)
+An NPC bio, memory, or event history that still calls her "bound," "gagged," or "blind" may be
+hours old, or already wrong. Do not narrate a state that is not confirmed below.
+
+{% if isString(_pd_worn) and _pd_worn != "" %}
+{{ _pd_worn }}
+{% endif %}
+
+{% if _pd_gag_on %}
+- MOUTH: gagged{% if isString(_pd_gag) and _pd_gag != "" %} with {{ _pd_gag }}{% endif %}. She cannot form words, pronounce names, or answer in language while it is on. Convey anything from her through muffled vocalisation, breathing, eye contact, or gesture — never intelligible dialogue.
+{% else %}
+- MOUTH: free. She can speak normally.
+{% endif %}
+{% if _pd_blind_on %}
+- EYES: covered by {{ _pd_blind }}. She sees nothing — not the room, not who is present, not a gesture or an expression. She may ask who is there or reach out to find out, and may be wrong.
+{% else %}
+- EYES: free. She sees normally.
+{% endif %}
+{% if _pd_deaf_on %}
+- EARS: muffled by {{ _pd_deaf }}. Sound reaches her thick and blurred — she can place a raised voice or a shout, not ordinary conversation at a normal volume.
+{% else %}
+- EARS: free. She hears normally.
+{% endif %}
+{% if _pd_all_on %}
+- BODY: held entirely by {{ _pd_all }}. She cannot use her hands, cannot walk at anything like a normal pace, cannot act unaided.
+{% else %}
+{% if _pd_arms_on %}
+- ARMS: bound in {{ _pd_arms }}. She cannot reach for, hold, take, or hand over anything, and cannot use a weapon.
+{% else %}
+- ARMS: free. Her hands work normally.
+{% endif %}
+{% if _pd_legs_on %}
+- LEGS: restrained by {{ _pd_legs }}. She moves at a slow shuffle and cannot run or keep a normal walking pace.
+{% else %}
+- LEGS: free. She moves normally.
+{% endif %}
+{% endif %}
+{#
+  ── RECOVERY EMPHASIS ──────────────────────────────────────────────────────
+  The OFF lines above state current fact, but a few turns of "gagged"/"blind"/
+  "bound" sitting in context is enough for an LLM to keep imitating them out of
+  habit after the device is actually gone. The source addon's own fix — a
+  decorator that counts down 3/2/1 after removal, then goes empty — is ported
+  here unchanged, still written in the positive per the addon's own lesson:
+  "LLM do really bad with negative, make them focus on what not to do and end
+  up doing it." Renders only in the 3 turns right after removal; re-locking
+  cancels the countdown on the very next render.
+#}
+{% set _pd_ungag = vrtedd_ungagged(player.UUID) %}
+{% set _pd_unblind = vrtedd_unblinded(player.UUID) %}
+{% set _pd_undeaf = vrtedd_undeafened(player.UUID) %}
+{% set _pd_unall = vrtedd_unbound_all(player.UUID) %}
+{% set _pd_unarms = vrtedd_unbound_arms(player.UUID) %}
+{% set _pd_unlegs = vrtedd_unbound_legs(player.UUID) %}
+{% if isString(_pd_ungag) and _pd_ungag != "" %}
+**HER MOUTH JUST CAME FREE.** Write her as someone who speaks normally now — full sentences, out loud. The muffled turns above are finished business.
+{% endif %}
+{% if isString(_pd_unblind) and _pd_unblind != "" %}
+**HER SIGHT JUST CAME BACK.** Write her as someone who is seeing — she recognises faces, reads the room, reacts to what is in front of her.
+{% endif %}
+{% if isString(_pd_undeaf) and _pd_undeaf != "" %}
+**HER HEARING JUST CAME BACK.** Write her as someone who catches every word at a normal volume — no more asking for things to be repeated.
+{% endif %}
+{% if isString(_pd_unall) and _pd_unall != "" %}
+**SHE WAS JUST FULLY FREED.** Write her as someone with her whole body back — hands and legs both her own again.
+{% endif %}
+{% if isString(_pd_unarms) and _pd_unarms != "" %}
+**HER ARMS JUST CAME FREE.** Write her as someone who reaches, takes, holds, and hands things over normally.
+{% endif %}
+{% if isString(_pd_unlegs) and _pd_unlegs != "" %}
+**HER LEGS JUST CAME FREE.** Write her as someone who walks and runs at a normal pace, keeping up with anyone.
+{% endif %}
+
+Nothing above says how she feels about any of it, or how she came to be this way. That is yours to play.
+
+The device names above (and in event history) are inventory labels: "Black Ebonite Armbinder", "Steel Chastity Bra (Padded)", "Female Chastity Bra (Padded)", "Steel Cuffs (Padded) (Arms)", "Black Ebonite Gag (Ball) (Simple)". Translate them into ordinary speech when you write or think — a black ebonite armbinder, a padded steel chastity bra, padded wrist cuffs, a ball gag. Never recite the parentheses. Never say "Female" as a product prefix.
+{% endif %}

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+  <moduleName>Lyza's SkyrimNet_DDUDNG fixes</moduleName>
+  <moduleImage path="fomod/header.jpg" />
+  <moduleDependencies operator="And">
+    <fileDependency file="DD SN AddOn.esp" state="Active" />
+    <fileDependency file="SkyrimNetUDNG.esp" state="Active" />
+    <fileDependency file="Devious Devices - Integration.esm" state="Active" />
+  </moduleDependencies>
+  <requiredInstallFiles>
+    <folder source="common" destination="" />
+  </requiredInstallFiles>
+  <installSteps order="Explicit">
+    <installStep name="Requirements">
+      <optionalFileGroups order="Explicit">
+        <group name="DD SkyrimNet AddOn" type="SelectExactlyOne">
+          <plugins order="Explicit">
+            <plugin name="Required — DD SN AddOn.esp (telord V1.1-beta)">
+              <description>
+HARD REQUIREMENT. This zip does not bundle telord's addon.
+
+Install DD_SkyrimNet_AddOn_V1.1-beta.zip by @telord first. In that FOMOD, tick Base so DD SN AddOn.esp is active. That DLL registers the vrtedd_* decorators this overlay reads (worn devices, gag name, blind, deaf, visible toys).
+
+Discord drop:
+https://discord.com/channels/1287232260617015336/1541604450072793139/1543822052899815584
+
+MO2 will warn if DD SN AddOn.esp is missing. Install the addon, enable the ESP, then run this installer again.
+
+Also needs Devious Devices - Integration.esm (DD SE / DD NG).
+              </description>
+              <image path="fomod/header.jpg" />
+              <typeDescriptor>
+                <type name="Required" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+        <group name="SkyrimNet_UDNG" type="SelectExactlyOne">
+          <plugins order="Explicit">
+            <plugin name="Required — SkyrimNetUDNG.esp (naitro2010)">
+              <description>
+HARD REQUIREMENT. This zip does not bundle naitro2010's plugin.
+
+Install SkyrimNet_UDNG first. It ships SkyrimNetUDNG.esp and the DD NG
+lock/unlock Papyrus (ExtCmdEquip*/ExtCmdUnequip* by slot) that this
+overlay's BDSMLOCK drilldown calls, plus the SkyrimNetDDUDNG_Event
+mod-event gagged_speech listens for on lock/unlock.
+
+Credit: naitro2010 — https://github.com/naitro2010/SkyrimNet_UDNG
+Releases: https://github.com/naitro2010/SkyrimNet_UDNG/releases
+
+MCM: NPC can equip devices on the player = ON.
+
+MO2 will warn if SkyrimNetUDNG.esp is missing. Install it, enable the
+ESP, then run this installer again.
+              </description>
+              <image path="fomod/header.jpg" />
+              <typeDescriptor>
+                <type name="Required" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="World tone">
+      <optionalFileGroups order="Explicit">
+        <group name="How NPCs treat her" type="SelectExactlyOne">
+          <plugins order="Explicit">
+            <plugin name="Medium — RP-focused">
+              <description>
+Shops, quests, and kind followers stay on the job. A greeting is not a lock.
+
+Predators, shady types, real arrests, and "she asked" still fire BDSMLOCK / strip / the remote. Occupancy, combat omit, and women-only are the same as Hard.
+
+Pick this if you want roleplay that can go there without every NPC treating her as livestock.
+              </description>
+              <image path="fomod/header.jpg" />
+              <files>
+                <folder source="medium" destination="" />
+              </files>
+              <typeDescriptor>
+                <type name="Recommended" />
+              </typeDescriptor>
+            </plugin>
+            <plugin name="Hard — being made a pet">
+              <description>
+Locking an adult woman is ordinary manners in this Skyrim. They look, they talk, they fire the ACTION.
+
+Same occupancy, same combat omit, same women-only rule as Medium. The difference is *when* — culture, not a bandit-after-fight special.
+
+Pick this if the hold is already using her.
+              </description>
+              <image path="fomod/header.jpg" />
+              <files>
+                <folder source="hard" destination="" />
+              </files>
+              <typeDescriptor>
+                <type name="Optional" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Experimental">
+      <optionalFileGroups order="Explicit">
+        <group name="Arousal overlay" type="SelectAny">
+          <plugins order="Explicit">
+            <plugin name="Experimental — arousal bands + follower remote">
+              <description>
+Leave this OFF if you want lock/strip/vibe/ungag without horniness numbers in the prompt.
+
+Turn it ON to add 0730 (a new file — it concatenates, it does not replace Hard/Medium):
+
+• Arousal bands from sla_Arousal (SLO Aroused NG). 0 dry, 20–60 the play window, 70 already insane, 90–100 gone. After 60 it is too late to play it cool. Prints the number. Does not fire ArousalChange — SkyrimNet_Arousal owns that.
+
+• Followers and friends may press the remote on their own if she is plugged, they are at least warming, and nobody is in combat. Prefer edge (teaseOnly).
+
+• Ungag-to-feed if she is gagged and SunHelm thirst/hunger is ≥ 70 — same beat the AIO already has. Harmless overlap.
+
+Without SLO, ranks read 0 and cold NPCs see nothing extra. Without SunHelm, thirst/hunger read 0 and the feed beat does not fire. Combat still omits the overlay. Not a world-setting rewrite. Not occupancy. Invent it — not a copy-me script.
+
+Needs: SLO Aroused NG + SkyrimNet_Arousal for the numbers; SunHelm optional.
+              </description>
+              <image path="fomod/header.jpg" />
+              <files>
+                <folder source="experimental" destination="" />
+              </files>
+              <typeDescriptor>
+                <type name="Optional" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+    <installStep name="Finish">
+      <optionalFileGroups order="Explicit">
+        <group name="Read this" type="SelectExactlyOne">
+          <plugins order="Explicit">
+            <plugin name="Open Features.md when you're done">
+              <description>
+Installed. Features.md ships in this mod's own folder, right next to README.md — open it for the full player-facing rundown: gagged speech, arms-then-clothes, ungag-to-drink, the vibrator remote, women-only locking, and what Hard vs Medium actually change.
+
+FOMOD can't launch a file for you — this page is the reminder, not a script. Find it after install at your MO2 mods folder \ Lyza's SkyrimNet_DDUDNG fixes \ Features.md, or right-click the mod in MO2's left pane -> Open in Explorer.
+
+Support / feedback thread: https://discord.com/channels/1287232260617015336/1544716621610877018
+              </description>
+              <image path="fomod/header.jpg" />
+              <typeDescriptor>
+                <type name="Required" />
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
+  </installSteps>
+</config>

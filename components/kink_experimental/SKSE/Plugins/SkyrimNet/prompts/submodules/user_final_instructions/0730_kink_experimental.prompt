@@ -1,0 +1,72 @@
+{% if render_mode != "transform" and exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{#
+  EXPERIMENTAL. Arousal bands + follower care. Not a copy-me script.
+  sla_Arousal 0-100 SLO. 0 dry, 20-60 the play window, 70 already insane, 90-100 gone.
+  After 60 it is too late to play it cool. Magic is 20-60.
+  Do not fire ArousalChange — SkyrimNet_Arousal owns that.
+
+  Needs: SunHelm globals (this load order), not SexLab Survival (that's a different mod).
+  _SHCurrentThirstLevel / _SHCurrentHungerLevel are floats; higher = worse.
+  Live-confirmed. Missing SunHelm → 0.0. sever_hunger is a STRING and the WRONG
+  meter here (was 0 while SunHelm hunger was 122). int() if you ever use it —
+  raw string compare ("0" >= 70) is true in this engine.
+
+  is_follower native bool. Friends: rank >= 1. One action per line.
+#}
+{% set _youA = get_faction_rank(npc.UUID, "sla_Arousal") %}
+{% set _herA = get_faction_rank(player.UUID, "sla_Arousal") %}
+{% set _follower = is_follower(npc.UUID) %}
+{% set _friend = get_relationship_rank(npc.UUID, player.UUID) >= 1 %}
+{% set _close = _follower or _friend %}
+{% set _gag = worn_has_keyword(player.UUID, "zad_DeviousGag") or worn_has_keyword(player.UUID, "zbfWornGag") %}
+{% set _plug = worn_has_keyword(player.UUID, "zad_DeviousPlugVaginal") or worn_has_keyword(player.UUID, "zad_DeviousPlugAnal") %}
+{% set _belt = worn_has_keyword(player.UUID, "zad_DeviousBelt") %}
+{% set _speakerBound = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") %}
+{% set _fighting = is_in_combat(npc.UUID) or is_in_combat(player.UUID) %}
+{% set _thirst = get_global_value("_SHCurrentThirstLevel") %}
+{% set _hunger = get_global_value("_SHCurrentHungerLevel") %}
+{% set _needDrink = _thirst >= 70 %}
+{% set _needFood = _hunger >= 70 %}
+{% set _needs = _needDrink or _needFood %}
+
+{% if _youA >= 20 or _herA >= 20 or (_close and _gag and _needs) %}
+## Kink (experimental)
+{% if _youA >= 90 %}
+You are gone ({{ _youA }}/100). You would grind on her, on furniture, in a crowded room. Invent it. Do not dump a whole outfit. Do not call ArousalChange.
+{% else if _youA >= 70 %}
+You are horny as fuck ({{ _youA }}/100). Too late to play it cool. Invent how that shows.
+{% else if _youA >= 60 %}
+Past the play-it-cool line ({{ _youA }}/100). The 20–60 window is behind you. You want.
+{% else if _youA >= 40 %}
+Deep in the magic ({{ _youA }}/100). This is the window — tease, edge, look too long. Invent it.
+{% else if _youA >= 20 %}
+Warming ({{ _youA }}/100). The magic starts here. A little bold. Not desperate yet.
+{% endif %}
+{% if _herA >= 90 %}
+{{ player_name }} is gone ({{ _herA }}/100). She would be rubbing on a post in the street.{% if _belt %} The belt is the only reason she isn't. Invent how that lands.{% if _plug %} Edge (`teaseOnly` true) if you press.{% endif %}{% endif %}
+{% else if _herA >= 70 %}
+{{ player_name }} is horny as fuck ({{ _herA }}/100). You can see it.{% if _belt %} Denial is sitting on her. Invent how you use that.{% endif %}
+{% else if _herA >= 60 %}
+{{ player_name }} is past playing it cool ({{ _herA }}/100).{% if _belt %} The belt is earning its keep.{% endif %}
+{% else if _herA >= 40 %}
+{{ player_name }} is deep in it ({{ _herA }}/100). The fun window.{% if _belt %} Frustration is the toy.{% endif %}
+{% else if _herA >= 20 %}
+{{ player_name }} is warming ({{ _herA }}/100). You can start something. Invent how.
+{% endif %}
+
+{% if _close and not _fighting and not _speakerBound and render_mode != "thoughts" %}
+You are close to her{% if _follower %} (follower){% else %} (friend){% endif %}. You may act on your own — she does not have to ask.
+
+{% if _gag and _needs %}
+She is gagged and in need{% if _needFood %} (hunger {{ _hunger }}){% endif %}{% if _needDrink %} (thirst {{ _thirst }}){% endif %} — SunHelm, higher is worse. Take the gag off this line so she can{% if _needFood and _needDrink %} eat and drink{% else if _needDrink %} drink{% else %} eat{% endif %}. That is BDSMUNLOCK, not talk:
+ACTION: BDSMUNLOCK PARAMS: {"intent": "gag {{ player_name }}"}
+You noticed the need. She did not have to ask. This line is the gag coming out. One ACTION. Invent the rest.
+{% else if _plug and _youA >= 20 %}
+She is plugged. You have a remote. If this line is you playing with her — Hornify simmer, Tease, edge (`teaseOnly` true), a Jab — fire it. You decide. The 20–60 window is for play. Not every sentence. Not a shop briefing.
+{% if _youA >= 70 %}
+You're past play-it-cool, so a press is in character. Prefer edge over letting her finish unless she begged.
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}

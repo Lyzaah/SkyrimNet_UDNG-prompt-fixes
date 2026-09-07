@@ -1,0 +1,34 @@
+name: gag_just_locked
+description: One handling beat when a gag is locked on the player. Dialogue must not smear every line.
+
+eventCriteria:
+  eventType: mod_event
+  schemaConditions:
+    - fieldPath: event_name
+      operator: equals
+      value: SkyrimNetDDUDNG_Event
+      caseSensitive: false
+    - fieldPath: str_arg
+      operator: contains
+      value: "locked"
+      caseSensitive: false
+    - fieldPath: str_arg
+      operator: contains
+      value: "Gag"
+      caseSensitive: false
+    - fieldPath: str_arg
+      operator: not_contains
+      value: "unlocked"
+      caseSensitive: false
+
+response:
+  type: direct_narration
+  content: "*The gag locks on {{ player_name }}. Someone thumbs the strap once so drool shines on the leather — one beat, then the room talks over her.*"
+
+audience: nearby_npcs
+
+enabled: true
+interrupt: false
+probability: 1.0
+cooldownSeconds: 180
+priority: 2

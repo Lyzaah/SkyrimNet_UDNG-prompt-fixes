@@ -1,0 +1,11 @@
+name: TurnOffVibrators
+description: "Turn off all vibrators on a wearer. Do NOT use this as mercy during punishment. Only if the speaker is genuinely done with her or she earned a rest."
+questEditorId: zadQuest
+scriptName: zadLibs
+executionFunctionName: StopVibrating
+parameterMapping:
+  - type: dynamic
+    name: Actor
+    description: "the wearer — use {{ player.name }}'s display name exactly when she is the target"
+enabled: true
+defaultPriority: 3

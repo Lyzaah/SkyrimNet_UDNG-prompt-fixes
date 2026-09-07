@@ -1,0 +1,119 @@
+{% if embed_actions_in_dialogue and eligible_actions and length(eligible_actions) > 0 %}
+{% if render_mode != "thoughts" %}
+{#
+  VibeHornify / VibeJab / VibeTease / VibePunish — the remote, not the lock.
+  Overlay yaml calls zadLibs.VibrateEffectAsync on zadQuest (DD NG, not UDPatch).
+  Strength/duration are BAKED on leaf actions (VibeHornify 1/10s, VibeHornifyLong 1/25s,
+  VibeJab 2/5s, VibeTease 3/10s, VibePunish 5/20s). LLM only sends
+  Actor + teaseOnly — never vibStrength or duration. Hornify duration is chosen
+  this render by random() between the 10s and 25s leaves.
+  Needs a plug/piercing already on her.
+
+  Mechanical constraint: VibrateEffectAsync takes one Actor param, no per-device slot. Pressing the
+  remote buzzes EVERYTHING active on her at once — there's no way to target just the plug and leave
+  the piercings alone. "Multi-toy targeting" below is therefore narrative-only: name what's
+  actually worn so the description is accurate, not a claim that the mechanism can pick one.
+
+  Confirmed live via MCP once connected (get_decorators / validate_prompt / render_template):
+  - is_in_combat(uuid) — real, confirmed. This file omits the remote body while
+    `_fighting` (speaker or lock target in combat); no mid-fight VibePunish nudge.
+  - random() is an INTEGER 0-100 per call, not a 0-1 float. Snapshot once, then compare.
+  - get_recent_events(N, uuid) takes a bare UUID — `get_recent_events(N, [uuid])` (array-literal
+    wrapping) fails to PARSE at all (json parse error), not just returns empty. This broke every
+    render of this file until fixed — see CHANGELOG.
+  - vrtedd_worn_visible(uuid) fails soft (renders `{}`) whether or not the third-party addon is
+    loaded — the isString guard below is sufficient, confirmed via render_template.
+#}
+{% if exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{% set _lockTargetUUID = player.UUID %}
+{% set _lockTargetName = player_name %}
+{% set _lockWomenOnly = decnpc(player.UUID).isFemale %}
+{% if exists("responseTarget") and existsIn(responseTarget, "UUID") and responseTarget.UUID != player.UUID %}
+{% if decnpc(responseTarget.UUID).isFemale %}
+{% set _lockTargetUUID = responseTarget.UUID %}
+{% set _lockTargetName = responseTarget.name %}
+{% set _lockWomenOnly = true %}
+{% else %}
+{% set _lockWomenOnly = false %}
+{% endif %}
+{% endif %}
+{% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
+{% if not _fighting %}
+{% if _lockWomenOnly %}
+{% set _plugVaginal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") %}
+{% set _plugAnal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
+{% set _nipple = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsNipple") %}
+{% set _pierceVaginal = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsVaginal") %}
+{% set _plug = _plugVaginal or _plugAnal %}
+{% set _nip = _nipple or _pierceVaginal %}
+{% if _plug or _nip %}
+{% set _toyNames = [] %}
+{% if _plugVaginal %}{% set _toyNames = append(_toyNames, "a vaginal plug") %}{% endif %}
+{% if _plugAnal %}{% set _toyNames = append(_toyNames, "an anal plug") %}{% endif %}
+{% if _nipple %}{% set _toyNames = append(_toyNames, "nipple piercings") %}{% endif %}
+{% if _pierceVaginal %}{% set _toyNames = append(_toyNames, "vaginal piercings") %}{% endif %}
+
+{% set _hornRoll = random() %}
+{% if _hornRoll < 50 %}{% set _hornLeaf = "VibeHornify" %}{% set _hornSecs = 10 %}
+{% else %}{% set _hornLeaf = "VibeHornifyLong" %}{% set _hornSecs = 25 %}
+{% endif %}
+## The remote — VibeHornify / VibeJab / VibeTease / VibePunish
+This always targets {{ _lockTargetName }} — whoever this line is actually addressed to right now (the player, or another NPC being talked to). {{ _lockTargetName }} already has {{ join(_toyNames, " and ") }} in. Talking about buzzing them does nothing. Pressing the remote is one of these leaf actions. It does not equip a toy. Name what's actually worn ({{ join(_toyNames, " and ") }}) — but the remote hits all of it at once, there's no picking just one.
+
+If you would punish, tease, "turn it on," or they are mouthy while sealed — and did **not** just ask for a new empty lock (chastity bra, belt, binder, catsuit, …) — fire one remote leaf THIS line instead of another gag.
+
+Pick the leaf. Strength and duration are already baked — never put `vibStrength` or `duration` in PARAMS.
+- Low horny simmer: `{{ _hornLeaf }}` (strength 1, {{ _hornSecs }}s this turn — copy that name, do not invent a duration)
+- Jab / warning: `VibeJab` (2, 5s)
+- Ordinary tease: `VibeTease` (3, 10s)
+- Punishment: `VibePunish` (5, 20s)
+
+Ordinary case:
+ACTION: VibeTease PARAMS: {"Actor": "{{ _lockTargetName }}", "teaseOnly": true}
+
+- PARAMS keys: `Actor`, `teaseOnly`. Do not add `intent`, `vibStrength`, or `duration`. Not BDSMLOCK.
+- teaseOnly true = edge her, deny the orgasm, laugh. false = try to make her cum (only if she begged to finish or has been very bad).
+- If teaseOnly is false and she finishes, narrate it yourself this line — invent the give. Nothing else in the scene reacts unless you make it visible.
+- If you press, the spoken line is the press: invent how it lands on her. She cannot pull it. The buzz is the lesson.
+- Do not TurnOffVibrators as kindness mid-punishment. This variant runs harder — prefer `VibePunish` when she's earned it.
+
+{% set _pressEvents = get_recent_events(get_event_history_count(_lockTargetUUID), _lockTargetUUID) %}
+{% set _pressCount = 0 %}
+{% set _latestPressTime = 0 %}
+{% set _latestPresser = "" %}
+{% for event in _pressEvents %}
+{% set _eventCompact = format_event(event, "compact") %}
+{% if isString(_eventCompact) and contains(_eventCompact, "pressed the remote on") %}
+{% set _pressCount = _pressCount + 1 %}
+{% if event.gameTime > _latestPressTime %}{% set _latestPressTime = event.gameTime %}{% set _latestPresser = event.originatingActor %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if _pressCount >= 4 %}
+This is at least the fourth press today. Rub it in — invent how the repetition lands, don't recycle the last press's line.
+{% else if _pressCount >= 2 %}
+Not her first press this session. Reference the count if it lands.
+{% endif %}
+
+{% set _lastPresserIsThisNpc = (_latestPresser == npc.UUID) %}
+{% set _rawVisible = vrtedd_worn_visible(_lockTargetUUID) %}
+{% set _visibleKnown = isString(_rawVisible) and _rawVisible != "" %}
+{% if _visibleKnown %}
+What's actually visible on her right now: {{ _rawVisible }}. A remote press in a room that can see that is public; if nothing there reads as a toy, keep the buzz hidden — don't invent a tell the room couldn't see.
+{% endif %}
+{% if _pressCount > 0 and not _lastPresserIsThisNpc and _visibleKnown %}
+Someone else may already have it running. Use the visible list above to decide whether you'd notice. Nothing there means nothing unusual to see.
+{% endif %}
+
+{% set _isPredatorFaction = is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
+{% if _isPredatorFaction %}
+You're not her partner — you're a captor with a toy on a prisoner. Use it as leverage or interrogation. No aftercare, no mercy after.
+{% endif %}
+
+{% endif %}
+{% else %}
+Do not press a remote this line. The vibe remote only acts on women.
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}

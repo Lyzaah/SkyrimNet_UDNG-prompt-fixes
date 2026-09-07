@@ -1,0 +1,25 @@
+{% if embed_actions_in_dialogue and eligible_actions and length(eligible_actions) > 0 %}
+{% if render_mode != "thoughts" %}
+{% if exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{#
+  MODERATE arrest wiring. Same bugfix as Hard: RestrainNPC cannot cuff the PLAYER.
+  TWEAK — harder: copy Hard 0765 (backtalk is a crime, must Arrest).
+  TWEAK — off: delete this file if you never want AI arrests.
+#}
+
+## Arresting {{ player_name }}
+`RestrainNPC` only finds other NPCs (Nazeem, a bystander). Targeting {{ player_name }} with it fails silently.
+
+This line uses the Arrest *category* (the `PARAMS: {"intent": ...}` form below). `AddBountyToPlayer` vs `ArrestPlayer` is the follow-up drilldown from that intent, not a second ACTION line you write now.
+
+If you are a guard or official and you are actually arresting her for a **real crime** (assault, theft, murder, trespass — not a sarcastic joke in the street) and `Arrest` is in the list:
+
+ACTION: Arrest PARAMS: {"intent": "add a bounty on {{ player_name }} then arrest her"}
+
+- `intent` is the ONLY key.
+- Put the bounty-then-arrest plan in `intent` as above. No bounty yet vs bounty already on the books is resolved in the follow-up, not by a second action name on this line.
+- Do not use RestrainNPC or KidnapNPC on the player.
+
+{% endif %}
+{% endif %}
+{% endif %}

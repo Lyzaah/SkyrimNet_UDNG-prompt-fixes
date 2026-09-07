@@ -1,0 +1,18 @@
+name: "BDSMLOCK and VIBRATIONS Fix"
+slug: bdsmlock-and-vibrations-fix
+version: 2.7.7
+mo2_mod_name: "BDSMLOCK_and_VIBRATIONS_Fix"
+
+# Shared components/ folders to pull in wholesale (see ../../components/)
+# 2.0.0: this package grew from "BDSMLOCK + vibrator fix" into the one mechanics package —
+# gagged_speech folded in permanently (the standalone gagged-speech package is retired), and
+# vrtedd_worn_truth added: player worn-device PHYSICS (not tone), powered by decorators from a
+# third-party addon, "DD SkyrimNet AddOn" (see its own README for the external requirement).
+includes:
+  - bdsmlock_vibrations_fix
+  - gagged_speech
+  - vrtedd_worn_truth
+
+meta_ini:
+  comments: "SkyrimNet mechanics fix: BDSMLOCK selection, the vibrator remote, gagged-speech muffling, and DD/ZaZ worn-device physics against DD NG / DDUDNG. No world/personality prompt, no ESP of its own."
+  notes: "REQUIRES the third-party 'DD SkyrimNet AddOn' (its Base component, ESP ticked) for the worn-device physics decorators — install it alongside this package. Left pane, above SkyrimNet_b24 and above DDUDNG. Drop your own domme-NPC personality prompt (or the World Setting prompt) on top of this. Restart after install."

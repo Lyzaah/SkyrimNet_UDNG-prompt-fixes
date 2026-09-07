@@ -1,0 +1,37 @@
+{% if render_mode == "transform" and exists("npc") and existsIn(npc, "UUID") and is_player(npc.UUID) %}
+{#
+  Gagged/hooded PLAYER — kill Chatterbox speech.
+
+  VRTE 0900 owns a speaking NPC's mouth (muffled "Mmmph" is the joke; you
+  WANT to hear that NPC). The player is different: her line is TTS'd with
+  femaleyoungeager, so leftover "Mmmph" or transformed words still play as
+  a clear voice. Numbered AFTER 0900 so this wins for the player only.
+
+  Use is_player(), not UUID string compare. Hood covers the mouth too
+  (extreme hoods especially; a ballgag harness can sit under it).
+
+  Thoughts stay free (render_mode != transform).
+  Helpless on purpose: she tries, the toy wins, the room watches.
+#}
+{% if worn_has_keyword(npc.UUID, "zad_DeviousGag") or worn_has_keyword(npc.UUID, "zbfWornGag") or worn_has_keyword(npc.UUID, "zad_DeviousHood") %}
+{% set _p = "he" %}{% set _pp = "his" %}{% set _po = "him" %}
+{% if decnpc(npc.UUID).isFemale %}{% set _p = "she" %}{% set _pp = "her" %}{% set _po = "her" %}{% endif %}
+{% set _ttsGag = worn_has_keyword(npc.UUID, "zad_DeviousGag") or worn_has_keyword(npc.UUID, "zbfWornGag") %}
+{% set _ttsHood = worn_has_keyword(npc.UUID, "zad_DeviousHood") %}
+{% set _ttsHoodOnly = _ttsHood and not _ttsGag %}
+**{{ decnpc(npc.UUID).name }} IS GAGGED/HOODED. THERE IS NO SPOKEN LINE FOR TTS.**
+{{ _p | capitalize }} is trying and {{ _p }} is losing. The gag and/or hood win in public. Play the struggle. Play the shame of being watched while it fails. Match the device already named above — do not invent a ball gag if that is not what is on.
+
+{% if is_narration_enabled() %}
+Write ONLY asterisk narration of {{ decnpc(npc.UUID).name }}'s body. Muffled noise lives *inside* the asterisks as description, not as dialogue. Nothing outside asterisks — no words, no "Mmmph" as a spoken line, no audio tags. The voice engine reads unwrapped text; leave that track empty on purpose.
+Show helplessness, not a coded message. Invent a fresh physical beat every line — if you already used a gesture this scene, do something else. Emotion and failure only.
+{% if _ttsHoodOnly %}
+Keep it dry — fabric-muffled, no drool, no spit, no ball. Breath trapped in cloth.
+{% endif %}
+{% else %}
+One short muffled sound. No words.
+{% endif %}
+
+Do not leak the intended request into the body language. A gagged girl does not get to be understood. She gets to be seen failing.
+{% endif %}
+{% endif %}

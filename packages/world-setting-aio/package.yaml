@@ -1,0 +1,29 @@
+name: "Lyza's SkyrimNet_DDUDNG fixes"
+slug: world-setting-aio
+version: 3.3.10
+mo2_mod_name: "Lyza's SkyrimNet_DDUDNG fixes"
+layout: fomod
+
+# Shared mechanics always install. Narrative is a FOMOD radio:
+# Medium (RP-focused) or Hard (being made a pet). Same occupancy,
+# combat omit, women-only. Different *when*.
+required_includes:
+  - bdsmlock_vibrations_fix
+  - gagged_speech
+  - vrtedd_worn_truth
+  - roleplay_guidelines
+
+fomod_options:
+  - id: medium
+    includes:
+      - world_setting_medium_narrative
+  - id: hard
+    includes:
+      - world_setting_hard_narrative
+  - id: experimental
+    includes:
+      - kink_experimental
+
+meta_ini:
+  comments: "Lyza's SkyrimNet_DDUDNG fixes — FOMOD: Medium (RP-focused) or Hard (being made a pet), optional Experimental arousal overlay. No ESP. Thread: https://discord.com/channels/1287232260617015336/1544716621610877018"
+  notes: "MO2 FOMOD. HARD REQUIREMENTS: SkyrimNet_UDNG by naitro2010 (SkyrimNetUDNG.esp) and telord DD_SkyrimNet_AddOn_V1.1-beta (DD SN AddOn.esp). Left pane above SkyrimNet_b24. Do not also install Hard/Medium AIO or the separate Fix+narrative pair. Restart after install. Ships Features.md and HOWTO_NPC_PREFERENCES.md alongside README.md."

@@ -1,0 +1,26 @@
+name: "World Setting - Hard (AIO)"
+slug: world-setting-hard-aio
+version: 3.2.6
+mo2_mod_name: "World Setting - Hard (AIO)"
+
+# Convenience bundle: everything world-setting-hard needs to actually work,
+# PLUS gagged-speech for convenience (the original shipped Hard zip never
+# bundled gag -- this AIO variant adds it as an extra, clearly noted in
+# README.md). Community-facing install should prefer the separate pieces
+# (world-setting-hard + bdsmlock-and-vibrations-fix, which now bundles
+# gagged-speech itself) so updates to either are visible and load order
+# stays legible. world_setting_shared is gone -- physics now comes from
+# vrtedd_worn_truth, part of the Fix package's own scope, mirrored here.
+# roleplay_guidelines (2.3.0+) -- same shared component as the Medium AIO,
+# content is tone-neutral (agency/register/mechanics-bridge, not
+# Medium/Hard-specific), so no forked variant needed.
+includes:
+  - bdsmlock_vibrations_fix
+  - gagged_speech
+  - vrtedd_worn_truth
+  - world_setting_hard_narrative
+  - roleplay_guidelines
+
+meta_ini:
+  comments: "SkyrimNet HARD overlay, all-in-one: BDSMLOCK/vibrator fix + gagged speech + worn-device physics + world/personality narrative, bundled for convenience. No ESP."
+  notes: "Highest left-pane above SkyrimNet_b24. Requires the third-party 'DD SkyrimNet AddOn' (Base component, ESP ticked) for the worn-device physics section to render. Do not also install the separate bdsmlock-and-vibrations-fix/world-setting-hard packages -- same filenames, pick one or the other. Restart after install."

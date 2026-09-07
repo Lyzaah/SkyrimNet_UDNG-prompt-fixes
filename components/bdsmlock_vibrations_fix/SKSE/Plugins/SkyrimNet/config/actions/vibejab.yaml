@@ -1,0 +1,34 @@
+name: VibeJab
+description: "Short remote jab (strength 2, 5 seconds) on a plug/piercing already worn. Does not equip anything. teaseOnly true = edge and deny; false = try to make her cum. No vibStrength or duration in PARAMS — those are baked in."
+questEditorId: zadQuest
+scriptName: zadLibs
+executionFunctionName: VibrateEffectAsync
+parameterMapping:
+  - type: dynamic
+    name: Actor
+    description: "the wearer — display name exactly"
+  - type: static
+    name: vibStrength
+    value: 2
+    description: DD scale 1-5, baked
+  - type: static
+    name: duration
+    value: 5
+    description: seconds, baked
+  - type: dynamic
+    name: teaseOnly
+    description: "true = edge her, no orgasm. false = try to make her cum."
+    optional: true
+    default: true
+  - type: static
+    name: silent
+    value: false
+    description: Static bool
+  - type: static
+    name: AllowActorInScene
+    value: false
+    description: Static bool
+enabled: true
+defaultPriority: 8
+isShortLived: true
+eventString: "{{ actor.name }} pressed the remote on {{ player.name }}"

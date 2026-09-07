@@ -1,0 +1,10 @@
+{% if render_mode == "transform" and exists("npc") and existsIn(npc, "UUID") and is_player(npc.UUID) %}
+{#
+  Transform-mode task override. Stock 0010_instructions says "rewrite this
+  line in your voice" which is how a gagged player still TTS-speaks.
+  After 0010_instructions, before 0010_setting. Player only. Thoughts stay free.
+#}
+{% if worn_has_keyword(npc.UUID, "zad_DeviousGag") or worn_has_keyword(npc.UUID, "zbfWornGag") or worn_has_keyword(npc.UUID, "zad_DeviousHood") %}
+**OVERRIDE THE REWRITE TASK.** {{ decnpc(npc.UUID).name }}'s mouth is blocked (gag and/or hood). Do not rewrite the intended line into spoken dialogue. Output is body language only — asterisk narration of a helpless, watched, silenced struggle. Nothing unwrapped for TTS.
+{% endif %}
+{% endif %}

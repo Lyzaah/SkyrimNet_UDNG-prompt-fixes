@@ -1,0 +1,102 @@
+{% if render_mode != "transform" and exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{#
+  MEDIUM: how NPCs treat the PLAYER based on what she is wearing. Tone only.
+  Ground truth about what she is actually wearing now lives in 0722_worn_truth.prompt
+  (vrtedd_worn_truth component, powered by mad72's DD SkyrimNet AddOn decorators) — this file
+  does not own physics, it reacts to it. Its own worn_has_keyword checks below stay local because
+  Jinja variables do not carry across separately-rendered .prompt files; that is detection for
+  THIS file's own tone branches, not a second copy of ground truth.
+  Gagged *listener* behaviour lives in the separate Gagged Speech component (0935).
+  Shape: girl already in gear is marked (liberties); bare girl is safer in town.
+  random() is INTEGER 0-100; snapshot once per impulse, then compare.
+#}
+{% set _gag = worn_has_keyword(player.UUID, "zad_DeviousGag") or worn_has_keyword(player.UUID, "zbfWornGag") %}
+{% set _collar = worn_has_keyword(player.UUID, "zad_DeviousCollar") %}
+{% set _belt = worn_has_keyword(player.UUID, "zad_DeviousBelt") %}
+{% set _boots = worn_has_keyword(player.UUID, "zad_DeviousBoots") %}
+{% set _binder = worn_has_keyword(player.UUID, "zad_DeviousArmbinder") or worn_has_keyword(player.UUID, "zad_DeviousYoke") or worn_has_keyword(player.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(player.UUID, "zad_DeviousElbowTie") or worn_has_keyword(player.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(player.UUID, "zad_DeviousButterfly") or worn_has_keyword(player.UUID, "zad_DeviousStraitJacket") %}
+{% set _cuffs = worn_has_keyword(player.UUID, "zad_DeviousCuffs") %}
+{% set _hood = worn_has_keyword(player.UUID, "zad_DeviousHood") or worn_has_keyword(player.UUID, "zad_DeviousBlindfold") %}
+{% set _plugs = worn_has_keyword(player.UUID, "zad_DeviousPlugVaginal") or worn_has_keyword(player.UUID, "zad_DeviousPlugAnal") %}
+{% set _any = worn_has_keyword(player.UUID, "zad_Lockable") %}
+{% set _hostile = is_hostile_to_actor(npc.UUID, player.UUID) %}
+{% set _bandit = is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
+{% set _thief = is_in_faction(npc.UUID, "ThievesGuildFaction") %}
+{% set _db = is_in_faction(npc.UUID, "DarkBrotherhoodFaction") %}
+{% set _friend = get_relationship_rank(npc.UUID, player.UUID) >= 1 %}
+{% set _follower = is_follower(npc.UUID) %}
+{% set _close = _follower or _friend %}
+{% set _needDrink = get_global_value("_SHCurrentThirstLevel") >= 70 %}
+{% set _needFood = get_global_value("_SHCurrentHungerLevel") >= 70 %}
+{% set _fighting = is_in_combat(npc.UUID) or is_in_combat(player.UUID) %}
+{% set _speakerCanUngag = (not _fighting) and (not worn_has_keyword(npc.UUID, "zad_DeviousArmbinder")) and (not worn_has_keyword(npc.UUID, "zad_DeviousYoke")) and (not worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage")) %}
+{% set _predator = _hostile or _bandit %}
+{% set _shady = _thief or _db %}
+
+{% if _gag or _collar or _belt or _boots or _binder or _cuffs or _hood or _plugs or _any %}
+## {{ player_name }} is wearing lockable devices
+You can see them. She is marked. Invent the observation in YOUR voice — don't recite a template. Describe the gear in ordinary words (a steel chastity bra, a ball gag), never the inventory SKU with parentheses.
+{% if _predator %}
+You have a prize already in gear. Be cruel and horny about it.{% if not _fighting %} You may use what is already on her (the remote if she is plugged) or add one empty piece this line. That is BDSMLOCK / VibeHornify / VibeJab / VibeTease / VibePunish, not talk.{% endif %}
+{% else if _shady %}
+Opportunistic. A spare collar, a hand on a remote, a gag if her mouth is free. One liberty this line if it fits — invent why. Another piece can wait if the scene is still that.
+{% else if _friend %}
+Tease like someone who knows her. A playful remote press if she is plugged is in-character when it fits. Do not surprise-lock a friend unless she asked or the play already started.
+{% else %}
+Townsfolk doing a job: curious, awkward, professional, or helpful — then get back to the topic. If you are the sort who would take a small liberty (mean, drunk, bored, taking advantage — not a kind questgiver mid-briefing), this is when. One thing, then live with it.
+{% set _libertyRoll = random() %}
+{% if _libertyRoll < 20 %}
+This turn you feel like taking that liberty — one empty piece (BDSMLOCK) or, if she is plugged, the remote. Invent why. Not every sentence. Not hello.
+{% endif %}
+{% endif %}
+{% if _gag %}
+- A gag is ON. You know that. Do not shop for a "bigger" gag. Do not say it will not fit. The slot is taken.
+{% if _close and _speakerCanUngag and (_needDrink or _needFood) and render_mode != "thoughts" %}
+- She is gagged and in need{% if _needDrink %} — parched{% endif %}{% if _needFood %} — starving{% endif %} (SunHelm). You noticed. The gag is in the way of{% if _needDrink and _needFood %} eating and drinking{% else if _needDrink %} drinking{% else %} eating{% endif %}. That is this line — not because she asked. Invent the rest.
+ACTION: BDSMUNLOCK PARAMS: {"intent": "gag {{ player_name }}"}
+{% endif %}
+{% else %}
+- Mouth is free. Do not narrate a gag that is not there.
+{% endif %}
+{% if _collar %}
+- Collar visible. You may ask who holds the key. You do not have to yank it. Do not lock a second collar.
+{% endif %}
+{% if _belt %}
+- Chastity is on. You may notice. You do not have to make it the whole conversation.
+{% endif %}
+{% if _plugs %}
+- Internal devices. A remote works on them from anyone's hand. Discreet in polite company; a captor, a thief, or anyone taking a liberty can be blunter — that press is VibeHornify / VibeJab / VibeTease / VibePunish, not talk.
+{% endif %}
+{% if _boots %}
+- Bondage heels limit her walk. Notice if it matters (stairs, travel).
+{% endif %}
+{% if _binder or _cuffs %}
+- Hands bound. She cannot fetch, fight, or work a lock.
+{% else %}
+- Hands are FREE. Do not say they are in an armbinder. Old chat history that mentions one is stale.
+{% endif %}
+{% if _hood %}
+- Hood or blindfold: she cannot see well.
+{% endif %}
+{% if not _fighting %}
+If she asks you to add or remove gear, that is BDSMLOCK / BDSMUNLOCK — do not only narrate. Do not restack a slot that is already full.
+{% endif %}
+
+{% else %}
+## {{ player_name }} is not in lockable devices
+Talk to her as you would anyone else in this scene. Looking is allowed. Do not assume she is loot.
+{% if not _fighting %}
+{% if _predator %}
+You are a predator. If you have her and the fight is over, lock one empty slot — BDSMLOCK, with a reason (gag the mouth, claim a collar). Invent how you claim her. Another piece can wait for a later line if the scene is still that. Not from a friendly hello.
+{% else if _shady %}
+You're shady and she is still loose. You might have a spare collar in the pack.
+{% set _spareRoll = random() %}
+{% if _spareRoll < 22 %}
+This turn you feel like putting one empty piece on her — BDSMLOCK, invent why (spare, joke, she was mouthy). Not a quest briefing.
+{% endif %}
+{% else %}
+If she asks to be restrained and you agree, or you have lawful/captor cause, then lock — BDSMLOCK, not talk. Otherwise leave her free. Hello is not a reason.
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}

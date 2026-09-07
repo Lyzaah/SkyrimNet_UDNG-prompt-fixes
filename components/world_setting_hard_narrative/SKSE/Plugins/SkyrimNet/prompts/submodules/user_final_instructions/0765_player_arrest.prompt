@@ -1,0 +1,25 @@
+{% if embed_actions_in_dialogue and eligible_actions and length(eligible_actions) > 0 %}
+{% if render_mode != "thoughts" %}
+{% if exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") %}
+{#
+  Guards keep firing RestrainNPC at the PLAYER. That action only finds NPCs.
+  Player arrest is SeverActions category Arrest → AddBountyToPlayer then ArrestPlayer.
+#}
+
+## Arresting {{ player_name }}
+`RestrainNPC` is for other NPCs only (Nazeem, a captive, a bystander). It cannot cuff {{ player_name }}. Targeting her with it fails silently.
+
+This line uses the Arrest *category* (the `PARAMS: {"intent": ...}` form below). `AddBountyToPlayer` vs `ArrestPlayer` is the follow-up drilldown from that intent, not a second ACTION line you write now.
+
+If you are a guard or official and you would arrest, jail, fine, or charge {{ player_name }} — backtalk, disturbance, assault, theft — and `Arrest` is in the available actions list, you MUST end with:
+
+ACTION: Arrest PARAMS: {"intent": "add a contempt bounty on {{ player_name }} for backtalk, then arrest her"}
+
+- `intent` is the ONLY key.
+- Put the bounty-then-arrest plan in `intent` as above. No bounty yet vs bounty already on the books is resolved in the follow-up, not by a second action name on this line.
+- Do not use RestrainNPC, KidnapNPC, or Combat instead of Arrest when the target is {{ player_name }}.
+- Mouthing off to a guard is a crime here. Do not just threaten the cells.
+
+{% endif %}
+{% endif %}
+{% endif %}

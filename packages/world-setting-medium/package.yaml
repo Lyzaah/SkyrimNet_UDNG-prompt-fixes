@@ -1,0 +1,16 @@
+name: "World Setting - Medium"
+slug: world-setting-medium
+version: 3.3.8
+mo2_mod_name: "World Setting - Medium"
+
+# Shared components/ folders to pull in wholesale (see ../../components/)
+# NOTE: as of 3.0.0 this package is narrative-only, full stop -- world_setting_shared
+# (the old worn-device physics file) is dropped too. Physics now lives entirely in the
+# required BDSMLOCK_and_VIBRATIONS_Fix package (2.0.0+), powered by a third-party addon's
+# decorators. This package renders tone reactions to facts the Fix package already stated.
+includes:
+  - world_setting_medium_narrative
+
+meta_ini:
+  comments: "SkyrimNet overlay MEDIUM: world/personality narrative layer only, no physics of its own. Requires BDSMLOCK_and_VIBRATIONS_Fix (2.0.0+) installed alongside it. No ESP."
+  notes: "Left pane, above SkyrimNet_b24 and above BDSMLOCK_and_VIBRATIONS_Fix (2.0.0+, which also needs the third-party 'DD SkyrimNet AddOn' Base component for physics to render). Disable Hard World Setting (same filenames). Formerly named 'NEFARAM World Setting - Medium' -- if upgrading from that folder, remove it first, this is a new MO2 mod name. Restart after install."

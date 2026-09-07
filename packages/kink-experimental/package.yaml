@@ -1,0 +1,13 @@
+name: "SkyrimNet Kink Experimental"
+slug: kink-experimental
+version: 1.0.0
+mo2_mod_name: "SkyrimNet Kink Experimental"
+
+# Overlay only. Unique filename 0730 — concatenates with the AIO.
+# Do not add this to world-setting-*-aio includes.
+includes:
+  - kink_experimental
+
+meta_ini:
+  comments: "EXPERIMENTAL SkyrimNet overlay: SLO arousal bands + follower remote play + ungag-to-feed. Not in the Hard/Medium AIO. No ESP."
+  notes: "Enable above World Setting Hard/Medium AIO. Needs SLO Aroused NG (sla_Arousal) and SunHelm for the numbers to mean anything. SkyrimNet_Arousal owns ArousalChange — this file does not fire it. Restart after install. See EXPERIMENTAL.md."

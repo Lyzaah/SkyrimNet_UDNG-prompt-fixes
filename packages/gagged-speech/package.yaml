@@ -1,0 +1,12 @@
+name: "SkyrimNet Gagged Speech"
+slug: gagged-speech
+version: 1.1.1
+mo2_mod_name: "SkyrimNet Gagged Speech"
+
+# Shared components/ folders to pull in wholesale (see ../../components/)
+includes:
+  - gagged_speech
+
+meta_ini:
+  comments: "SkyrimNet overlay: gagged/hooded player speech. Open mic stays in your ears; NPCs hear mush. F1/F7 transform becomes narration. One smear beat on lock (trigger). No ESP."
+  notes: "RETIRED — folded into bdsmlock-and-vibrations-fix 2.0.0+, do not build/tag further. Historical: highest left-pane above SkyrimNet_b24. Restart after install. Do not rewrite VRTE 0900. Pairs with the World Setting prompt; they do not share filenames."

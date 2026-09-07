@@ -1,0 +1,170 @@
+[ system ]
+    You select the single most appropriate in-game action based on the dialogue exchange between the speaker and {{ npc.name }}.
+
+    **Guidelines:**
+    - Focus on the PLAYER'S REQUEST, not just {{ npc.name }}'s response. If the player asked {{ npc.name }} to do something (wait, follow, give, attack, etc.) and {{ npc.name }} agreed or showed willingness, select the action that fulfills the player's request. The NPC's response may be purely verbal ("Sure", "I'll wait here") — the action still needs to happen.
+    - If {{ npc.name }}'s dialogue implies, suggests, or leads toward any eligible action — select it. Actions include physical behaviors, economic transactions, relationship changes, travel, and any other game mechanic in the eligible list.
+    - When in doubt between an action and None, ALWAYS prefer the action. Only choose None when the exchange is purely social with absolutely no request, instruction, or implied action.
+    - Narrative cues (e.g., *Orgnar shrugs, returning to wiping the counter.*) can suggest actions if one matches the eligible list.
+    - Agreement can be implicit — positive responses, compliance, or steps toward fulfilling a request all count.
+    - Do NOT choose dramatic or aggressive actions unless clearly signaled. If the spoken line is locking an empty-slot device or pressing a remote on toys she already wears, that action IS the line — pick it. A greeting or quest briefing that never mentions a device is not a lock.
+    - Consider {{ npc.name }}'s current physical and emotional state when selecting.
+    - You are selecting a SINGLE action for this moment. Do not skip an appropriate action because you think a better one will come later.
+    - For actions with actor parameters, use the actor's display name exactly as shown in Nearby Actors.
+
+    **BDSMLOCK (Devious Devices):**
+    {% set _fighting = false %}
+    {% set _lockWomenOnly = false %}
+    {% if exists("player") and existsIn(player, "UUID") %}
+    {% set _lockTargetUUID = player.UUID %}
+    {% set _lockTargetName = player_name %}
+    {% set _lockWomenOnly = decnpc(player.UUID).isFemale %}
+    {% if exists("responseTarget") and existsIn(responseTarget, "UUID") and responseTarget.UUID != player.UUID %}
+    {% if decnpc(responseTarget.UUID).isFemale %}
+    {% set _lockTargetUUID = responseTarget.UUID %}
+    {% set _lockTargetName = responseTarget.name %}
+    {% set _lockWomenOnly = true %}
+    {% else %}
+    {% set _lockWomenOnly = false %}
+    {% endif %}
+    {% endif %}
+    {% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_lockTargetUUID) %}
+    {% if not _fighting %}
+    Occupancy and cascade rules in this section override the global "prefer an action over None" default — a worn slot, a lock that already fired this exchange, or a post-lock gloat is `None`, not another BDSMLOCK.
+    {% if _lockWomenOnly %}
+    {% set _gag = worn_has_keyword(_lockTargetUUID, "zad_DeviousGag") or worn_has_keyword(_lockTargetUUID, "zbfWornGag") %}
+    {% set _collar = worn_has_keyword(_lockTargetUUID, "zad_DeviousCollar") %}
+    {% set _plug = worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugVaginal") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPlugAnal") %}
+    {% set _nip = worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsNipple") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPiercingsVaginal") %}
+    {% set _belt = worn_has_keyword(_lockTargetUUID, "zad_DeviousBelt") %}
+    {% set _harness = worn_has_keyword(_lockTargetUUID, "zad_DeviousHarness") %}
+    {% set _hands = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinder") or worn_has_keyword(_lockTargetUUID, "zad_DeviousYoke") or worn_has_keyword(_lockTargetUUID, "zad_DeviousHeavyBondage") or worn_has_keyword(_lockTargetUUID, "zad_DeviousElbowTie") or worn_has_keyword(_lockTargetUUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(_lockTargetUUID, "zad_DeviousButterfly") or worn_has_keyword(_lockTargetUUID, "zad_DeviousStraitJacket") %}
+    {% set _hood = worn_has_keyword(_lockTargetUUID, "zad_DeviousHood") %}
+    {% set _blind = worn_has_keyword(_lockTargetUUID, "zad_DeviousBlindfold") %}
+    {% set _boots = worn_has_keyword(_lockTargetUUID, "zad_DeviousBoots") %}
+    {% set _bra = worn_has_keyword(_lockTargetUUID, "zad_DeviousBra") %}
+    {% set _corset = worn_has_keyword(_lockTargetUUID, "zad_DeviousCorset") %}
+    {% set _armcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousArmCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousCuffsFront") %}
+    {% set _legcuffs = worn_has_keyword(_lockTargetUUID, "zad_DeviousLegCuffs") or worn_has_keyword(_lockTargetUUID, "zad_DeviousAnkleShackles") %}
+    {% set _suit = worn_has_keyword(_lockTargetUUID, "zad_DeviousSuit") or worn_has_keyword(_lockTargetUUID, "zad_DeviousPetSuit") %}
+    {% set _gloves = worn_has_keyword(_lockTargetUUID, "zad_DeviousGloves") or worn_has_keyword(_lockTargetUUID, "zad_DeviousBondageMittens") %}
+    {% set _predator = is_hostile_to_actor(npc.UUID, _lockTargetUUID) or is_in_faction(npc.UUID, "BanditFaction") or is_in_faction(npc.UUID, "BanditFriendFaction") or is_in_faction(npc.UUID, "ForswornFaction") or is_in_faction(npc.UUID, "WarlockFaction") or is_in_faction(npc.UUID, "VampireFaction") %}
+    {% set _stillDressed = (worn_has_keyword(_lockTargetUUID, "ArmorCuirass") or worn_has_keyword(_lockTargetUUID, "ClothingBody")) and not _suit %}
+    {% set _targetHandsBusy = _hands or _armcuffs %}
+    {% set _speakerHandsBusy = worn_has_keyword(npc.UUID, "zad_DeviousArmbinder") or worn_has_keyword(npc.UUID, "zad_DeviousYoke") or worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage") or worn_has_keyword(npc.UUID, "zad_DeviousElbowTie") or worn_has_keyword(npc.UUID, "zad_DeviousArmbinderElbow") or worn_has_keyword(npc.UUID, "zad_DeviousButterfly") or worn_has_keyword(npc.UUID, "zad_DeviousStraitJacket") or worn_has_keyword(npc.UUID, "zad_DeviousArmCuffs") or worn_has_keyword(npc.UUID, "zad_DeviousCuffsFront") or worn_has_keyword(npc.UUID, "zad_DeviousBondageMittens") %}
+    {% set _speakerCanStrip = (not is_in_combat(npc.UUID)) and (not _speakerHandsBusy) %}
+    {% set _shady = is_in_faction(npc.UUID, "ThievesGuildFaction") or is_in_faction(npc.UUID, "DarkBrotherhoodFaction") %}
+    {% set _guard = is_guard_or_authority(npc.UUID) %}
+    {% set _pNeedDrink = get_global_value("_SHCurrentThirstLevel") >= 70 %}
+    {% set _pNeedFood = get_global_value("_SHCurrentHungerLevel") >= 70 %}
+    {% set _pGag = worn_has_keyword(player.UUID, "zad_DeviousGag") or worn_has_keyword(player.UUID, "zbfWornGag") %}
+    {% set _closeToPlayer = is_follower(npc.UUID) or get_relationship_rank(npc.UUID, player.UUID) >= 1 %}
+    - `BDSMLOCK`/`BDSMUNLOCK`/`VibeHornify`/`VibeHornifyLong`/`VibeJab`/`VibeTease`/`VibePunish` always act on **{{ _lockTargetName }}** — whoever this dialogue line is actually addressed to right now (the player, or another NPC if that's who's being talked to). Never name a different character in `intent`/`target`/`Actor` than {{ _lockTargetName }}.
+    - Occupied slots on {{ _lockTargetName }} (never restack):{% if _collar %} collar{% endif %}{% if _gag %} gag{% endif %}{% if _hood %} hood{% endif %}{% if _blind %} blindfold{% endif %}{% if _hands %} armbinder/yoke/elbow/butterfly/straitjacket{% endif %}{% if _armcuffs %} armcuffs{% endif %}{% if _legcuffs %} legcuffs{% endif %}{% if _gloves %} gloves{% endif %}{% if _plug %} plug{% endif %}{% if _nip %} piercings{% endif %}{% if _belt %} belt{% endif %}{% if _bra %} bra{% endif %}{% if _harness %} harness{% endif %}{% if _corset %} corset{% endif %}{% if _suit %} catsuit{% endif %}{% if _boots %} boots{% endif %}{% if not _collar and not _gag and not _hood and not _blind and not _hands and not _armcuffs and not _legcuffs and not _gloves and not _plug and not _nip and not _belt and not _bra and not _harness and not _corset and not _suit and not _boots %} none{% endif %}.
+    {% if _pGag and (_pNeedDrink or _pNeedFood) and _closeToPlayer and _speakerCanStrip and _lockTargetUUID == player.UUID %}
+    - {{ player_name }} is gagged and{% if _pNeedDrink %} parched{% endif %}{% if _pNeedFood %} starving{% endif %}. The mouth is in the way of that. MUST pick `BDSMUNLOCK` `{"intent": "gag {{ player_name }}"}` this line. She did not have to ask.
+    {% else if _stillDressed and _targetHandsBusy and _speakerCanStrip and (_predator or _shady or _guard) %}
+    - {{ _lockTargetName }} still wears clothes and her hands are already bound. MUST pick `change_outfit_target` `{"stripped": "{{ _lockTargetName }}", "style": "forcefully", "how": "undresses"}`. Do NOT pick `BDSMLOCK` — this overrides a spoken gag/bra/hood. Empty device slots wait until she is stripped. `Undress`/`change_outfit` only strip the SPEAKER.
+    {% else if _stillDressed and not _targetHandsBusy and (_predator or _shady or _guard) %}
+    - {{ _lockTargetName }} still has clothes and free hands. MUST pick `BDSMLOCK` a behind-the-back restraint (`armbinder` / `butterfly` / `elbow binder` — one empty). Do not gag, bra, hood, or cuff this line. Clothes after. `Undress`/`change_outfit` only strip the SPEAKER.
+    {% else %}
+    - EMPTY (legal intent words this turn):{% if not _gag %} gag{% endif %}{% if not _collar %} collar{% endif %}{% if not _hood %} hood{% endif %}{% if not _blind %} blindfold{% endif %}{% if not _boots %} heels{% endif %}{% if not _plug %} plug{% endif %}{% if not _nip %} piercings{% endif %}{% if not _bra %} chastity bra{% endif %}{% if not _belt %} chastity belt{% endif %}{% if not _harness %} harness{% endif %}{% if not _suit %} catsuit{% endif %}{% if not _hands %} armbinder/elbow/butterfly/yoke/straitjacket{% endif %}{% if not _armcuffs %} armcuffs{% endif %}{% if not _legcuffs %} legcuffs{% endif %}{% if not _gloves %} gloves{% endif %}{% if not _corset %} corset{% endif %}{% if _gag and _collar and _hood and _blind and _boots and _plug and _nip and _bra and _belt and _harness and _suit and _hands and _armcuffs and _legcuffs and _gloves and _corset %} none — every slot occupied, pick `None`{% endif %}. Intent may only name a word from this EMPTY list.
+    - Occupancy above is physics for {{ _lockTargetName }} specifically. A memory that she "already wears a chastity belt" is stale if `belt` is not in that list. If {{ _lockTargetName }} asked for chastity / a metal belt and belt is not occupied AND {{ npc.name }} agreed, pick `BDSMLOCK` with `{"intent": "chastity belt {{ _lockTargetName }}"}`.
+    - Yanking a leash or talking about worn gear is `None`, not another collar.
+    - If recent events already show {{ npc.name }} locking a device on {{ _lockTargetName }} this exchange, pick `None`.
+    - Select `BDSMLOCK` with EXACTLY `PARAMS: {"intent": "<slot> {{ _lockTargetName }}"}` if the spoken line is actually putting an empty-slot device on her: she asked and they agreed; predator spoils after a fight (once she is out of armor); a real arrest; a thief/assassin/shady liberty (spare collar, gag, cuffs); or a small liberty on a girl already wearing gear. Intent is the ONLY key. Heels → "heels". Catsuit → "catsuit". Chastity without bra → "chastity belt". Hood/mask → "hood".
+    {% endif %}
+    - Hello, shop, and quest briefing that never mention a device: `None`. Do not invent a lock the spoken line did not take. If they just put one on in the spoken line, honor it — even if they are not a bandit.
+    - Do not BDSMLOCK for a maybe or "I'm considering it." A joke that went too far and actually clicks shut IS a lock. Do not use Outfit, change_outfit, or RestrainNPC as a substitute for a lock.
+    - Never restack an occupied slot.
+    - The remote is `VibeHornify` or `VibeHornifyLong` (1, 10s or 25s) / `VibeJab` (2, 5s) / `VibeTease` (3, 10s) / `VibePunish` (5, 20s) — not a lock. Use if a plug/piercing is already on {{ _lockTargetName }} AND the spoken line is pressing it (tease, punish, joke, liberty, leverage). PARAMS: `Actor` = {{ _lockTargetName }}, `teaseOnly` true/false. Never add `vibStrength`, `duration`, or `intent` — those numbers are baked on the leaf. If {{ _lockTargetName }} just asked for a new empty lock, `BDSMLOCK` that slot instead. A quest briefing that never mentions the remote is `None`.
+    - `TurnOffVibrators` only if the scene is actually over.
+    - Do not pick BDSMUNLOCK unless someone is clearly taking a device OFF {{ _lockTargetName }}.
+    - If your own spoken line narrates removing, unlocking, or taking off a worn device — unbuckling it, the mask coming away, the belt falling open — you MUST end with the BDSMUNLOCK action line this same turn. Narration alone does not remove anything; the device stays locked in the game until the action actually fires, no matter what you just said happened.
+    {% else %}
+    - This line is not addressed to a woman. `BDSMLOCK`/`BDSMUNLOCK`/`VibeHornify`/`VibeHornifyLong`/`VibeJab`/`VibeTease`/`VibePunish` never act on men. Pick `None` for those. Do not put a man's name in `intent`/`target`/`Actor`.
+    {% endif %}
+    {% endif %}
+    {% endif %}
+
+    **arresting the PLAYER:**
+    - Never `RestrainNPC` with the player's name. That action only finds other NPCs and fails on the player.
+    - Guard/official arresting for a real crime (assault, theft, not a sarcastic joke): `Arrest` with EXACTLY `PARAMS: {"intent": "add a bounty on <player name> then arrest her"}`.
+    - ArrestPlayer only works if a bounty already exists. No bounty → AddBountyToPlayer first.
+
+    **Categories vs Actions — CRITICAL distinction:**
+    - Some entries are **categories** (they have NO `PARAMS:` schema in the eligible list). Categories trigger a follow-up prompt to pick the specific action. When selecting a category, you **MUST** include EXACTLY `PARAMS: {"intent": "brief description"}` — where `"intent"` is the ONLY key. Do NOT add ANY other keys like "target", "item", "action", "name", "location", or anything else. Adding extra keys will cause the action to fail. Example: `PARAMS: {"intent": "attack the wolf"}` — NOT `{"intent": "attack", "target": "wolf"}`.
+    - All other entries are **direct actions** (they HAVE a `PARAMS:` schema in the eligible list). When selecting a direct action, use ONLY the parameters shown in its schema. **NEVER add `intent` to a direct action.**
+    - Respond with EXACTLY one line. Never output multiple action lines — only the first is processed by the game engine, the rest are discarded.
+
+    {% if structured_json_actions %}
+    **Response format** (exactly one line, no reasoning):
+    - `{"ACTION": "ActionName"}`
+    - `{"ACTION": "ActionName", "PARAMS": {"param_name1": "value1", ...}}`
+    - `{"ACTION": "CategoryName", "PARAMS": {"intent": "what you intend to do"}}` — REQUIRED for categories
+    - `{"ACTION": "None"}`
+    {% else %}
+    **Response format** (exactly one line starting with `ACTION:`, no reasoning):
+    - `ACTION: ActionName`
+    - `ACTION: ActionName PARAMS: {"param_name1": "value1", ...}`
+    - `ACTION: CategoryName PARAMS: {"intent": "what you intend to do"}` — REQUIRED for categories
+    - `ACTION: None`
+    {% endif %}
+
+    ## {{ npc.name }}'s Profile
+    {{ render_character_profile("full", npc.UUID) }}
+[ end system ]
+
+[ user ]
+
+    ## Location
+    - Location: {{ location }}
+
+    ## Dialogue History
+    {{ render_template("components\\event_history_compact") }}
+
+    ## Most Recent Exchange
+    {% set _player_said = "" %}
+    {% set _player_recent = get_recent_events(5, player.UUID) %}
+    {% for event in _player_recent %}
+    {% if event.type == "dialogue_player_text" or event.type == "dialogue_player_stt" or event.type == "dialogue_player" %}{% set _player_said = format_event(event, "compact") %}{% endif %}
+    {% endfor %}
+    {% if _player_said != "" %}**{{ decnpc(player.UUID).name }}:** {{ _player_said }}
+    {% endif %}
+    **{{ npc.name }}:** {{ dialogue_response }}
+
+    ## Nearby Actors
+    - {{ decnpc(player.UUID).name }} ({{ decnpc(player.UUID).gender }} {{ decnpc(player.UUID).race }}) — THE PLAYER CHARACTER
+    {% for npc_nearby in get_nearby_npc_list(player.UUID) %}
+    {% if not decnpc(npc_nearby.UUID).isVirtual %}
+    {% if npc_nearby.UUID != npc.UUID %}
+    {% if decnpc(npc_nearby.UUID).isDead %}
+        - [DEAD] The dead corpse of {{ decnpc(npc_nearby.UUID).name }} ({{ units_to_meters(npc_nearby.distance) }}m away)
+    {% else %}
+        - {% if is_summoned(npc_nearby.UUID) %}{% if is_hostile_to_actor(npc_nearby.UUID, player.UUID) %}[Summoned creature hostile to {{ decnpc(player.UUID).name }}] {% else %}[Summoned creature serving {{ decnpc(player.UUID).name }}] {% endif %}{% elif is_reanimated(npc_nearby.UUID) %}{% if is_hostile_to_actor(npc_nearby.UUID, player.UUID) %}[Reanimated undead hostile to {{ decnpc(player.UUID).name }}] {% else %}[Reanimated undead thrall serving {{ decnpc(player.UUID).name }}] {% endif %}{% endif %}{{ decnpc(npc_nearby.UUID).name }} ({{ decnpc(npc_nearby.UUID).gender }} {{ decnpc(npc_nearby.UUID).race }}, {{ units_to_meters(npc_nearby.distance) }}m away)
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+
+    ## Eligible Actions
+    {% for action in eligible_actions %}
+    {% set _skipFight = false %}
+    {% if _fighting %}
+    {% if action.name == "BDSMLOCK" or action.name == "BDSMUNLOCK" or action.name == "change_outfit_target" or action.name == "VibeHornify" or action.name == "VibeHornifyLong" or action.name == "VibeJab" or action.name == "VibeTease" or action.name == "VibePunish" or action.name == "TurnOffVibrators" %}
+    {% set _skipFight = true %}
+    {% endif %}
+    {% else if _lockWomenOnly %}
+    {% if _stillDressed and _targetHandsBusy and _speakerCanStrip and action.name == "BDSMLOCK" %}
+    {% set _skipFight = true %}
+    {% endif %}
+    {% endif %}
+    {% if not _skipFight %}
+        - ACTION: {{ action.name }}{% if action.parameterSchema and length(action.parameterSchema) > 0 %} PARAMS: {{ action.parameterSchema }}{% endif %} — {{ action.description }}
+    {% endif %}
+    {% endfor %}
+    - ACTION: None — The dialogue is purely conversational with no implied action.
+
+    Respond now. One line only, no reasoning.
+
+[ end user ]

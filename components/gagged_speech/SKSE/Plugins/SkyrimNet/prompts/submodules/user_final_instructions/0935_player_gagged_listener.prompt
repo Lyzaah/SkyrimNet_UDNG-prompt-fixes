@@ -1,0 +1,115 @@
+{% if render_mode != "thoughts" and exists("player") and existsIn(player, "UUID") and exists("npc") and existsIn(npc, "UUID") and not is_player(npc.UUID) %}
+{#
+  Gagged speaker (player OR another NPC being addressed) → listener reaction guidance. Physics only.
+  Hands-on smear lives in triggers gag_just_locked / hood_just_locked (cooldown 180s each).
+  Do not force asterisk handling every dialogue line.
+
+  Generalized beyond the player-only case (2026-09-01): the "gagged party" is whoever npc is
+  actually talking to this line (responseTarget) if that's someone other than the player, else the
+  player, matching the same _lockTargetUUID/_lockTargetName pattern used for BDSMLOCK/BDSMUNLOCK/
+  VibeTease/VibePunish. worn_has_keyword/vrtedd_gag_name/vrtedd_blind/vrtedd_deaf/
+  get_relationship_rank are all native and already generic to any actor UUID. Filename kept as-is
+  for history; content is not player-specific anymore.
+
+  Comprehension chance uses random() — INTEGER 0-100 per call (not a 0-1 float). Snapshot once
+  (`{% set _compRoll = random() %}`), then compare; each call is a new roll. Thresholds are
+  plain percentages (`_compRoll < 35` = 35%). Not prose asking the model to "rarely" do
+  something — the prose describes what a passed roll looks like, the roll decides whether it
+  renders at all.
+  Rank tiers use get_relationship_rank's real confirmed scale: -4..4
+  (Archnemesis/Enemy/Foe/Rival/Acquaintance/Friend/Confidant/Ally/Lover), not 0-100. Tuned to
+  rank>=1/2/3 (Friend/Confidant/Ally-or-better) for 8%/20%/35% — first pass, not tuned against real
+  playtesting, adjust once seen in actual scenes.
+
+  Mage/spellcaster comprehension bonus is deliberately NOT implemented here — deferred in
+  mod-dev/IDEAS.md pending a confirmed detection mechanism (faction? spell? dedicated decorator?).
+  When it lands, it should roll its own weighted random() check the same way, not prose.
+#}
+{% set _gaggedUUID = player.UUID %}
+{% set _gaggedName = player_name %}
+{% if exists("responseTarget") and existsIn(responseTarget, "UUID") and responseTarget.UUID != player.UUID and responseTarget.UUID != npc.UUID %}
+{% set _gaggedUUID = responseTarget.UUID %}
+{% set _gaggedName = responseTarget.name %}
+{% endif %}
+{% set _gag = worn_has_keyword(_gaggedUUID, "zad_DeviousGag") or worn_has_keyword(_gaggedUUID, "zbfWornGag") %}
+{% set _hood = worn_has_keyword(_gaggedUUID, "zad_DeviousHood") %}
+{% set _hoodonly = _hood and not _gag %}
+{% set _layered = _gag and _hood %}
+{% set _rawGagName = vrtedd_gag_name(_gaggedUUID) %}
+{% set _gagNameKnown = isString(_rawGagName) and _rawGagName != "" %}
+{% set _gagName = "" %}
+{% if _gagNameKnown %}{% set _gagName = lower(_rawGagName) %}{% endif %}
+{% set _rawBlind = vrtedd_blind(_gaggedUUID) %}
+{% set _blind = isString(_rawBlind) and _rawBlind != "" %}
+{% set _rawDeaf = vrtedd_deaf(_gaggedUUID) %}
+{% set _deaf = isString(_rawDeaf) and _rawDeaf != "" %}
+{% set _gagElapsed = -1 %}
+{% if _gag %}
+{% set _gagLockEvents = get_recent_events(get_event_history_count(_gaggedUUID), _gaggedUUID) %}
+{% set _gagLockTime = 0 %}
+{% for event in _gagLockEvents %}
+{% if event.type == "mod_event" and event.data.event_name == "SkyrimNetDDUDNG_Event" and contains(event.data.str_arg, "locked") and contains(event.data.str_arg, "Gag") and not contains(event.data.str_arg, "unlocked") %}
+{% if event.gameTime > _gagLockTime %}{% set _gagLockTime = event.gameTime %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if _gagLockTime > 0 %}{% set _gagElapsed = gameTimeNumeric - _gagLockTime %}{% endif %}
+{% endif %}
+{% set _needDrink = get_global_value("_SHCurrentThirstLevel") >= 70 %}
+{% set _needFood = get_global_value("_SHCurrentHungerLevel") >= 70 %}
+{% set _closeToPlayer = is_follower(npc.UUID) or get_relationship_rank(npc.UUID, player.UUID) >= 1 %}
+{% set _fighting = is_in_combat(npc.UUID) or is_in_combat(_gaggedUUID) %}
+{% set _speakerCanUngag = (not _fighting) and (not worn_has_keyword(npc.UUID, "zad_DeviousArmbinder")) and (not worn_has_keyword(npc.UUID, "zad_DeviousYoke")) and (not worn_has_keyword(npc.UUID, "zad_DeviousHeavyBondage")) %}
+{% if _gag %}
+**{{ _gaggedName }} IS GAGGED.** You did not understand a sentence. History may show words — that is what she *meant*. You heard spit and strap. Do not answer a request. Do not BDSMLOCK another gag (the mouth slot is already taken).
+{% if _gaggedUUID == player.UUID and _closeToPlayer and _speakerCanUngag and (_needDrink or _needFood) %}
+She is gagged and in need{% if _needDrink %} — parched{% endif %}{% if _needFood %} — starving{% endif %}. You can see it. That is not a request. The gag is in the way of{% if _needDrink and _needFood %} eating and drinking{% else if _needDrink %} drinking{% else %} eating{% endif %}. That is this line. Invent the rest.
+ACTION: BDSMUNLOCK PARAMS: {"intent": "gag {{ player_name }}"}
+{% else %}
+Do not BDSMUNLOCK her because she asked.
+{% endif %}
+
+Talk. Invent one fresh mock from the mouth in front of you. Joke-translate once, freshly — do not clone the last line. **No asterisk hands-on.** No thumb, smear, wipe, or pat unless a trigger just described the lock. The gag is already on; you do not re-enact buckling it every reply.
+
+{% if _layered %}
+What's on her: hood over the gag — trapped, echoing, almost nothing escapes.
+{% else if _gagNameKnown and contains(_gagName, "ring") %}
+What's on her: a ring gag, mouth held open.
+{% else if _gagNameKnown and contains(_gagName, "ball") %}
+What's on her: a ball gag, mouth filled, sound thick around it.
+{% else if _gagNameKnown and contains(_gagName, "muzzle") %}
+What's on her: a muzzle, sealed hard, barely a sound gets past.
+{% else if _gagNameKnown and contains(_gagName, "panel") %}
+What's on her: a panel gag, flat and tight, almost a word and never quite.
+{% else if _gagNameKnown and (contains(_gagName, "pussy") or contains(_gagName, "fleshlight")) %}
+What's on her: not an ordinary gag — a molded insert that uses her mouth like the other hole.
+{% endif %}
+{% if _gagElapsed >= 0 %}
+{% if _gagElapsed > 3600 %}
+She's been locked like this a while — jaw aching, soaked through.
+{% else if _gagElapsed > 1800 %}
+It's settled in — she's stopped fighting the first shock of it.
+{% else %}
+It was locked on recently — still fresh.
+{% endif %}
+{% endif %}
+Invent the mock from those facts. Do not reuse a phrasing from earlier this scene.
+{% if _blind %}
+She can't see you either — she's blind on top of gagged. Lean on sound and touch, not on anything she could see you do.
+{% endif %}
+{% set _rank = get_relationship_rank(npc.UUID, _gaggedUUID) %}
+{% set _compProb = 0 %}
+{% if _rank >= 3 %}{% set _compProb = 35 %}
+{% elif _rank >= 2 %}{% set _compProb = 20 %}
+{% elif _rank >= 1 %}{% set _compProb = 8 %}
+{% endif %}
+{% set _compRoll = random() %}
+{% if _compProb > 0 and _compRoll < _compProb %}
+This time, a fragment gets through — not the whole sentence, just a word or two she meant. Closeness bought her that much, no more.
+{% endif %}
+{% else if _hoodonly %}
+**{{ _gaggedName }} is hooded, not gagged.** Do not thumb a gag. Do not smear drool. If she speaks clearly, you heard her.
+{% endif %}
+{% if _deaf %}
+**{{ _gaggedName }} IS DEAFENED.** She did not hear a normal-volume line from you. Get her attention physically first — a tap, turning her face toward you — before assuming she caught anything you just said.
+{% endif %}
+{% endif %}
