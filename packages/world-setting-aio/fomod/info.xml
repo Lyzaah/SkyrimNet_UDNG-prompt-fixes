@@ -2,7 +2,7 @@
 <fomod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/Info.xsd">
   <Name>Lyza's SkyrimNet_DDUDNG fixes</Name>
   <Author>Lyza / Grok</Author>
-  <Version>3.3.4</Version>
+  <Version>3.3.11</Version>
   <Website>https://discord.com/channels/1287232260617015336/1544716621610877018</Website>
   <Description>
 SkyrimNet + Devious Devices prompt overlay. No ESP of its own.
