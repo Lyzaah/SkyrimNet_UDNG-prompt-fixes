@@ -72,6 +72,17 @@ Always installed (`common/`):
 | Worn-device physics | Ground-truth "what's on her right now" sheet the other pieces read from |
 | Roleplay guidelines | NPC agency framing, SKU-name-to-speech conversion (never TTS an inventory string) |
 
+Then a "Vibrator script" page with one checkbox, greyed out and locked either way — not a real
+choice, just a readout of what the installer found:
+
+| State | What it means |
+|---|---|
+| Checked (locked) | `UnforgivingDevices.esp` — the actual **Unforgiving Devices NG** patch mod by naitro2010, a *different* plugin from `SkyrimNet_UDNG`'s `SkyrimNetUDNG.esp` (already a hard requirement above) — was detected active. The seven vibrator actions call `zadLibs_UDPatch` instead of base `zadLibs`, so pressing the remote actually drives UDNG's own custom vibrator render scripts when she's wearing one of UDNG's custom devices. |
+| Unchecked (locked) | `UnforgivingDevices.esp` wasn't detected active. The actions keep calling base `zadLibs` — nothing changes. |
+
+Nothing to click here; the installer decided from what's actually in your load order, because
+leaving it as a manual choice was pointless — one answer is always right.
+
 Then **exactly one** world tone:
 
 | Choice | What it changes |
@@ -95,6 +106,7 @@ Optional checkbox:
 | Devices | **Devious Devices SE 5.2** + **DD NG** | [DD SE](https://www.loverslab.com/files/file/5878-devious-devices-se/) · [DD NG](https://www.loverslab.com/files/file/29779-devious-devices-ng/) |
 | Lock API | **SkyrimNet_UDNG** by **naitro2010** — ships `SkyrimNetUDNG.esp` | [GitHub](https://github.com/naitro2010/SkyrimNet_UDNG) · [Releases](https://github.com/naitro2010/SkyrimNet_UDNG/releases). **Hard requirement.** Not bundled — FOMOD checks the ESP. |
 | Strip | **SexLab Framework SE** | [LoversLab](https://www.loverslab.com/files/category/228-sexlab-framework-se/) |
+| Vibrator render scripts (optional) | **Unforgiving Devices NG** by **naitro2010** — ships `UnforgivingDevices.esp`. A *different* mod from SkyrimNet_UDNG above, despite the similar name. | Not bundled, not a hard requirement — the FOMOD's "Vibrator script" page shows a locked checkbox reading whatever it autodetects. |
 | Worn-device physics (`vrtedd_*`) | **DD SkyrimNet AddOn V1.1-beta** by **telord** — tick **Base** so `DD SN AddOn.esp` is active | [Discord](https://discord.com/channels/1287232260617015336/1541604450072793139/1543822052899815584). **Hard requirement.** Not bundled — FOMOD checks the ESP. |
 
 Optional, for the pieces described above: [SLO Aroused NG](https://www.nexusmods.com/skyrimspecialedition/mods/65454), [SkyrimNet_Arousal](https://github.com/GoodProvider/SkyrimNet_Arousal) (arousal bands), [SunHelm](https://www.nexusmods.com/skyrimspecialedition/mods/39414) (ungag-to-drink fail-softs to 0 without it), [SeverActions](https://github.com/Severause/SeverActions).
@@ -107,16 +119,18 @@ UDNG MCM: NPC can equip devices on the player = ON.
 2. Install **DD_SkyrimNet_AddOn_V1.1-beta.zip** (telord). Enable `DD SN AddOn.esp`.
 3. Drop `Lyza's SkyrimNet_DDUDNG fixes-v*.zip` on MO2. The FOMOD wizard should open — it will
    complain if either ESP above is missing.
-4. Requirements page: acknowledge both plugins. Then pick **Medium — RP-focused** or
-   **Hard — being made a pet**.
-5. Optional: tick **Experimental** only if you're running SLO Aroused NG + SkyrimNet_Arousal and
+4. Requirements page: acknowledge both plugins.
+5. Vibrator script page: a locked, greyed-out checkbox — checked if it detected
+   `UnforgivingDevices.esp` (Unforgiving Devices NG) active, unchecked if not. Nothing to click.
+6. World tone page: pick **Medium — RP-focused** or **Hard — being made a pet**.
+7. Optional: tick **Experimental** only if you're running SLO Aroused NG + SkyrimNet_Arousal and
    want arousal bands and follower remote play.
-6. Last page: a reminder to open `Features.md` (ships in this mod's own folder) for the full
+8. Last page: a reminder to open `Features.md` (ships in this mod's own folder) for the full
    feature rundown.
-7. Enable the mod. Left pane **above** `SkyrimNet_b24`, DDUDNG, VRTE, SKSE Output.
-8. Disable any other mod that ships its own `0010_setting.prompt` or an older split
-   Hard/Medium/Fix install — same filenames, last one in the left pane wins the whole file.
-9. **Restart the game.**
+9. Enable the mod. Left pane **above** `SkyrimNet_b24`, DDUDNG, VRTE, SKSE Output.
+10. Disable any other mod that ships its own `0010_setting.prompt` or an older split
+    Hard/Medium/Fix install — same filenames, last one in the left pane wins the whole file.
+11. **Restart the game.**
 
 If MO2 installs without showing a wizard, the zip has no `fomod/ModuleConfig.xml` at its root —
 re-download. Do not extract by hand unless you copy `common/` plus **one of** `medium/` or `hard/`
@@ -134,5 +148,7 @@ changes when you do.
 ## Credits
 
 - **naitro2010** — [SkyrimNet_UDNG](https://github.com/naitro2010/SkyrimNet_UDNG), the lock/unlock
-  Papyrus and mod-event this whole overlay is built against. Hard requirement, not bundled.
+  Papyrus and mod-event this whole overlay is built against. Hard requirement, not bundled. Also
+  supplied the working UDNG-compatible vibrator action definitions the "UDNG-patched" install
+  choice is based on.
 - **telord** — DD SkyrimNet AddOn, the worn-device physics decorators. Hard requirement, not bundled.

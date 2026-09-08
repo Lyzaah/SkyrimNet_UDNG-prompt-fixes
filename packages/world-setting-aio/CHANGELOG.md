@@ -3,6 +3,41 @@
 All notable changes to this package are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [3.4.0] - 2026-09-08
+
+### Added
+- New FOMOD install step, "Vibrator script": a single checkbox, greyed out
+  and locked either way — not a real choice. It reads checked (and its
+  `udng_vibrations_patch` files install) when `UnforgivingDevices.esp` —
+  **Unforgiving Devices NG** itself, by naitro2010, a *different* plugin
+  from `SkyrimNet_UDNG`'s own `SkyrimNetUDNG.esp` (already a hard
+  requirement on the previous page) — is detected active in the load order;
+  unchecked otherwise, leaving the vanilla DD NG actions already shipped in
+  `bdsmlock_vibrations_fix` (the `common/` default) untouched. Implemented
+  with a `dependencyType`/`patterns` typeDescriptor resolving to `Required`
+  when `UnforgivingDevices.esp` is Active and `NotUsable` otherwise — visible
+  so the player can see what got detected, but nothing for them to get wrong.
+- `zadLibs_UDPatch` (from `UnforgivingDevices.esp`, confirmed by reading
+  `zadlibs_UDPatch.psc` from the extracted base mod — not from
+  `SkyrimNetUDNG.esp`, which is a separate plugin) overrides `VibrateEffect` and
+  `StopVibrating` to drive UDNG's own custom vibrator render scripts when the
+  wearer is registered with `UDCDmain`, falling back to vanilla `zadLibs`
+  behavior otherwise. Base `zadLibs` has no
+  `VibrateEffectAsync` override in that script, so calling the async
+  function on an actor wearing one of UDNG's own custom devices never drove
+  the custom render script at all. The seven UDNG-side action YAMLs (all
+  seven vibrator actions) now call `zadLibs_UDPatch`, using the synchronous
+  `VibrateEffect` function instead of `VibrateEffectAsync` (that signature
+  takes `Actor, vibStrength, duration, teaseOnly, silent` — no
+  `AllowActorInScene` — so that static param is dropped on this branch only).
+  `TurnOffVibrators` switches script but keeps calling `StopVibrating`
+  (same function name, present on both scripts). Every other field
+  (enabled/disabled state, priorities, baked strength/duration values,
+  descriptions) is unchanged from the existing `bdsmlock_vibrations_fix`
+  actions — only the script/function routing differs.
+- Credit: naitro2010 supplied the working UDNG-compatible action
+  definitions this component is based on.
+
 ## [3.3.11] - 2026-09-07
 
 ### Fixed
