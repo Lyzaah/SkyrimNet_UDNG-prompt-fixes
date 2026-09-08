@@ -1,6 +1,6 @@
 name: "Lyza's SkyrimNet_DDUDNG fixes"
 slug: world-setting-aio
-version: 3.3.11
+version: 3.4.0
 mo2_mod_name: "Lyza's SkyrimNet_DDUDNG fixes"
 layout: fomod
 
@@ -23,6 +23,9 @@ fomod_options:
   - id: experimental
     includes:
       - kink_experimental
+  - id: udng_vibe
+    includes:
+      - udng_vibrations_patch
 
 meta_ini:
   comments: "Lyza's SkyrimNet_DDUDNG fixes — FOMOD: Medium (RP-focused) or Hard (being made a pet), optional Experimental arousal overlay. No ESP. Thread: https://discord.com/channels/1287232260617015336/1544716621610877018"

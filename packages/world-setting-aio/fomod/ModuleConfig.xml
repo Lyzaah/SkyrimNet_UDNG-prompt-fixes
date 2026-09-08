@@ -63,6 +63,54 @@ ESP, then run this installer again.
         </group>
       </optionalFileGroups>
     </installStep>
+    <installStep name="Vibrator script">
+      <optionalFileGroups order="Explicit">
+        <group name="Unforgiving Devices NG (auto-detected, not a choice)" type="SelectAny">
+          <plugins order="Explicit">
+            <plugin name="UnforgivingDevices.esp detected: installing UDNG-patched vibrator scripts">
+              <description>
+Not a choice — locked to whatever the installer actually finds. This box
+is checked and greyed out if `UnforgivingDevices.esp` (Unforgiving
+Devices NG by naitro2010 — the actual DD NG script patch mod, a different
+plugin from SkyrimNet_UDNG's own `SkyrimNetUDNG.esp`, which is already a
+hard requirement on the previous page) is active in your load order.
+Unchecked and greyed out if it isn't. Either way there is nothing to
+click here.
+
+Checked: the seven vibrator actions (remote/BDSMLOCK press) call
+`zadLibs_UDPatch` instead of base `zadLibs`, so pressing the remote
+actually drives UDNG's own custom vibrator render scripts when she's
+wearing one of UDNG's custom devices — falls back to vanilla DD NG
+behavior on anything else, so it's safe on a mixed UDNG/vanilla-DD-NG
+game.
+
+Unchecked: the actions keep calling base `zadLibs.VibrateEffectAsync` /
+`zadLibs.StopVibrating`. Nothing changes.
+
+Credit for the compatible action definitions: naitro2010.
+              </description>
+              <image path="fomod/header.jpg" />
+              <files>
+                <folder source="udng_vibe" destination="" />
+              </files>
+              <typeDescriptor>
+                <dependencyType>
+                  <defaultType name="NotUsable" />
+                  <patterns>
+                    <pattern>
+                      <dependencies operator="And">
+                        <fileDependency file="UnforgivingDevices.esp" state="Active" />
+                      </dependencies>
+                      <type name="Required" />
+                    </pattern>
+                  </patterns>
+                </dependencyType>
+              </typeDescriptor>
+            </plugin>
+          </plugins>
+        </group>
+      </optionalFileGroups>
+    </installStep>
     <installStep name="World tone">
       <optionalFileGroups order="Explicit">
         <group name="How NPCs treat her" type="SelectExactlyOne">

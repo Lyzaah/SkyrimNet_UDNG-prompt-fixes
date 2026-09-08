@@ -2,12 +2,18 @@
 <fomod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/Info.xsd">
   <Name>Lyza's SkyrimNet_DDUDNG fixes</Name>
   <Author>Lyza / Grok</Author>
-  <Version>3.3.4</Version>
+  <Version>3.4.0</Version>
   <Website>https://discord.com/channels/1287232260617015336/1544716621610877018</Website>
   <Description>
 SkyrimNet + Devious Devices prompt overlay. No ESP of its own.
 
 Feedback / support thread: https://discord.com/channels/1287232260617015336/1544716621610877018
+
+Vibrator script page shows a locked, greyed-out checkbox: checked if
+Unforgiving Devices NG (UnforgivingDevices.esp) is detected active, in
+which case the vibrator actions call zadLibs_UDPatch instead of base
+zadLibs; unchecked otherwise. Not a real choice, just a visible readout —
+courtesy of naitro2010's compatible action definitions for SkyrimNet_UDNG.
 
 Installer picks the world tone:
 - Medium — RP-focused. Shops and quests stay shops and quests unless she asked, or they are predators / shady / arresting.
